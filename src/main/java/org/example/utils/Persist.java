@@ -7,12 +7,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.example.entities.User;
+import org.example.entities.FootballClub;
+import org.example.entities.League;
 
 import javax.annotation.PostConstruct;
 import javax.persistence.Query;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 
 @Transactional
@@ -32,7 +36,6 @@ public class Persist {
     @PostConstruct
     public void init() {
         createDbConnection(Constants.DB_USERNAME, Constants.DB_PASSWORD);
-
     }
 
 
@@ -129,6 +132,93 @@ public class Persist {
             e.printStackTrace();
         }
         return success;
+    }
+
+    public void createClub(FootballClub club) {
+        try {
+            Session session = sessionFactory.getCurrentSession();
+            Query query = session.createQuery("FROM FootballClub");
+            List<FootballClub> existingClubs = query.getResultList();
+            if (existingClubs.size() >= 10) {
+                // There are already 10 or more clubs, so we don't need to create new ones
+                return;
+            }
+            session.save(club);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void createInitialClubs() {
+        Set<String> clubNames = new HashSet<>();
+        clubNames.add("Hapoel Beer Sheva");
+        clubNames.add("Maccabi Tel Aviv");
+        clubNames.add("Maccabi Haifa");
+        clubNames.add("Beitar Jerusalem");
+        clubNames.add("Ashdod Sports Club");
+        clubNames.add("Hapoel Petah Tikva");
+        clubNames.add("Ironi Kiryat Shmona");
+        clubNames.add("Hapoel Tel Aviv");
+        clubNames.add("Hapoel Jerusalem");
+        clubNames.add("Maccabi Netanya");
+
+        int i = 1;
+        for (String clubName : clubNames) {
+            FootballClub club = new FootballClub();
+            club.setName(clubName);
+            club.setTeamStrength((int) (Math.random() * 70) + 30);
+            createClub(club);
+            i++;
+            if (i > 10) {
+                break;
+            }
+        }
+    }
+
+    public List<FootballClub> getClubs() {
+        List<FootballClub> clubs = null;
+        try {
+            Session session = sessionFactory.getCurrentSession();
+            clubs = session.createQuery("FROM FootballClub").getResultList();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return clubs;
+    }
+
+    public void createLeague(League league) {
+        try {
+            Session session = sessionFactory.getCurrentSession();
+            session.save(league);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public List<League> getLeagues() {
+        List<League> leagues = null;
+        try {
+            Session session = sessionFactory.getCurrentSession();
+            leagues = session.createQuery("FROM League").getResultList();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return leagues;
+    }
+
+    public void createInitialLeague() { // משהו לא עובד פה
+        League league = new League();
+        FootballClub[] clubs = new FootballClub[getClubs().size()];
+        league.setClubs(getClubs().toArray(clubs));
+        createLeague(league);
+
+    }
+
+
+
+    public void createInitialData() {
+        createInitialClubs();
+//        createInitialLeague(); // משהו לא עובד פה
     }
 
 

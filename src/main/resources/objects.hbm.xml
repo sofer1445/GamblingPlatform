@@ -15,6 +15,48 @@
 
     </class>
 
+    <class name="org.example.entities.FootballClub" table="footballClubs" lazy="false">
+        <id name="name" type="string" column="name">
+            <generator class="assigned"/>
+        </id>
+        <property name="points" type="int" column="points"/>
+        <property name="wins" type="int" column="wins"/>
+        <property name="draws" type="int" column="draws"/>
+        <property name="losses" type="int" column="losses"/>
+        <property name="goalsScored" type="int" column="goalsScored"/>
+        <property name="goalsConceded" type="int" column="goalsConceded"/>
+        <property name="matchesPlayed" type="int" column="matchesPlayed"/>
+        <property name="teamStrength" type="int" column="teamStrength"/>
+    </class>
+
+
+
+<!--    לבדוק את זה או אפילו לעשות מחדש-->
+    <class name="org.example.entities.League" table="leagues" lazy="false">
+        <id name="id" type="int" column="id">
+            <generator class="native"/>
+        </id>
+        <map name="clubPositions" table="club_positions" lazy="false">
+            <key column="name"/>
+            <map-key column="club_name" type="string"/>
+            <element column="position" type="integer"/>
+        </map>
+        <array name="clubs" table="clubs">
+            <key column="name"/>
+            <index column="club_index" type="integer"/>
+            <many-to-many class="org.example.entities.FootballClub" column="club_name"/>
+        </array>
+        <property name="matchesPlayed" column="matches_played" type="integer"/>
+        <property name="wins" column="wins" type="integer"/>
+        <property name="draws" column="draws" type="integer"/>
+        <property name="losses" column="losses" type="integer"/>
+        <property name="goalsScored" column="goals_scored" type="integer"/>
+        <property name="goalsConceded" column="goals_conceded" type="integer"/>
+        <property name="difference" column="difference" type="integer"/>
+        <property name="points" column="points" type="integer"/>
+    </class>
+
+
 
 
 
