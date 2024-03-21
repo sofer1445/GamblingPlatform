@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import org.example.utils.ResultsGenerator.GameResultGenerator;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
@@ -113,6 +114,11 @@ public class GeneralController {
         }
         return success;
     }
+
+//    @RequestMapping (value = "generate-result")
+//    public String generateResult (String team1Name, String team2Name) {
+//
+//    }
 
 
 }

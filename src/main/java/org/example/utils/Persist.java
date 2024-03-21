@@ -14,9 +14,7 @@ import javax.annotation.PostConstruct;
 import javax.persistence.Query;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 
 @Transactional
@@ -53,7 +51,7 @@ public class Persist {
 
     public User login(String mail, String password) {
         User user = null;
-        if(mail == null || password == null) {
+        if (mail == null || password == null) {
             return null;
         }
         try {
@@ -186,7 +184,7 @@ public class Persist {
         return clubs;
     }
 
-    public void createLeague(League league) {
+    public void saveLeague(League league) {
         try {
             Session session = sessionFactory.getCurrentSession();
             session.save(league);
@@ -195,31 +193,21 @@ public class Persist {
         }
     }
 
-    public List<League> getLeagues() {
-        List<League> leagues = null;
-        try {
-            Session session = sessionFactory.getCurrentSession();
-            leagues = session.createQuery("FROM League").getResultList();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return leagues;
+    public void createInitialLeague() {
+        List<FootballClub> clubs = getClubs();
+        FootballClub[] clubArray = new FootballClub[clubs.size()];
+        clubArray = clubs.toArray(clubArray);
+        League league = new League("Israeli Premier League", clubArray);
+        saveLeague(league);
     }
-
-    public void createInitialLeague() { // משהו לא עובד פה
-        League league = new League();
-        FootballClub[] clubs = new FootballClub[getClubs().size()];
-        league.setClubs(getClubs().toArray(clubs));
-        createLeague(league);
-
-    }
-
 
 
     public void createInitialData() {
         createInitialClubs();
-//        createInitialLeague(); // משהו לא עובד פה
+        createInitialLeague();
+
     }
+
 
 
 

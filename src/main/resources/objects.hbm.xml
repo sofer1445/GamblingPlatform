@@ -2,8 +2,6 @@
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
         "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping>
-
-
     <class name="org.example.entities.User" table="users" lazy="false">
         <id name="id" type="int" column="id">
             <generator class="native"/>
@@ -12,7 +10,6 @@
         <property name="password" type="string" column="password"/>
         <property name="mail" type="string" column="mail"/>
         <property name="secret" type="string" column="secret"/>
-
     </class>
 
     <class name="org.example.entities.FootballClub" table="footballClubs" lazy="false">
@@ -29,36 +26,14 @@
         <property name="teamStrength" type="int" column="teamStrength"/>
     </class>
 
-
-
-<!--    לבדוק את זה או אפילו לעשות מחדש-->
-    <class name="org.example.entities.League" table="leagues" lazy="false">
-        <id name="id" type="int" column="id">
-            <generator class="native"/>
+    <class name="org.example.entities.League" table="league" lazy="false">
+        <id name="name" type="string" column="name">
+            <generator class="assigned"/>
         </id>
-        <map name="clubPositions" table="club_positions" lazy="false">
-            <key column="name"/>
-            <map-key column="club_name" type="string"/>
-            <element column="position" type="integer"/>
+        <map name="footballClubs" table="league_footballClubs" lazy="false">
+            <key column="leagueName"/>
+            <index column="footballClubName" type="string"/>
+            <many-to-many class="org.example.entities.FootballClub"/>
         </map>
-        <array name="clubs" table="clubs">
-            <key column="name"/>
-            <index column="club_index" type="integer"/>
-            <many-to-many class="org.example.entities.FootballClub" column="club_name"/>
-        </array>
-        <property name="matchesPlayed" column="matches_played" type="integer"/>
-        <property name="wins" column="wins" type="integer"/>
-        <property name="draws" column="draws" type="integer"/>
-        <property name="losses" column="losses" type="integer"/>
-        <property name="goalsScored" column="goals_scored" type="integer"/>
-        <property name="goalsConceded" column="goals_conceded" type="integer"/>
-        <property name="difference" column="difference" type="integer"/>
-        <property name="points" column="points" type="integer"/>
     </class>
-
-
-
-
-
-
 </hibernate-mapping>
