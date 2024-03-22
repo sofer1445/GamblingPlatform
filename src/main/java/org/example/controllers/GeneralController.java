@@ -4,6 +4,7 @@ import org.example.entities.User;
 import org.example.responses.BasicResponse;
 import org.example.responses.LoginResponse;
 import org.example.utils.Persist;
+import org.example.entities.FootballClub;
 import org.example.utils.Validator.EmailValidator;
 import org.example.utils.Validator.PasswordValidator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -115,10 +116,56 @@ public class GeneralController {
         return success;
     }
 
-//    @RequestMapping (value = "generate-result")
-//    public String generateResult (String team1Name, String team2Name) {
-//
-//    }
+    @RequestMapping (value = "generate-result")
+    public String generateResult (String secretNewUser , FootballClub team1Name, FootballClub team2Name) {
+        if (secretNewUser != null && secretNewUser.length() > 0) {
+            List<User> users = persist.getUsers();
+            for (User user : users) {
+                if (user.getSecret().equals(secretNewUser)) {
+                    GameResultGenerator gameResultGenerator = new GameResultGenerator();
+                    return gameResultGenerator.generateResult(team1Name, team2Name).getResult();
+                }
+            }
+        }
+        return null;
+
+    }
 
 
 }
+
+//  @GetMapping(value = "/subscribe")
+//    public SseEmitter subscribe(String secret) {
+//        try{
+//            SseEmitter emitter = new SseEmitter((long) 10000); // 10 seconds
+//            ClientSse clientSse = new ClientSse(secret, emitter);
+//            clients.add(clientSse);
+//            emitter.onCompletion(() -> clients.remove(clientSse));
+//            emitter.onTimeout(() -> clients.remove(clientSse));
+//            return emitter;
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return null;
+//        }
+//    }
+
+//   @PostConstruct
+//    public void init() {
+//        new Thread(() ->{
+//            while (true) {
+//                try {
+//                    Thread.sleep(1000);
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
+//                for(ClientSse emitter : clients ) {
+//                    try {
+//                        emitter.getEmitter().send(new Date());
+//                    } catch (Exception e) {
+//                        e.printStackTrace();
+//                    }
+//                }
+//                System.out.println("Hello from thread");
+//            }
+//        }).start();
+//    }

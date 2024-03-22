@@ -10,14 +10,14 @@ public class GameResultGenerator {
     private  final int RANDOM_FACTOR_RANGE = 20; // -10 to 10
     private  final Random RANDOM = new Random();
 
-//    public static void main(String[] args) {
-//        FootballClub team1 = new FootballClub("Team1", 30);
-//        FootballClub team2 = new FootballClub("Team2", 90);
-//        System.out.println(generateResult(team1, team2));
-//    }
+    public static void main(String[] args) {
+        GameResultGenerator gameResultGenerator = new GameResultGenerator();
+        FootballClub team1 = new FootballClub("Team 1", 30);
+        FootballClub team2 = new FootballClub("Team 2", 70);
+        System.out.println(gameResultGenerator.generateResult(team1, team2));
+    }
 
-    public  String generateResult(FootballClub team1, FootballClub team2) {
-        System.out.println("Team1: " + team1.getName()+" Strength" + team1.getTeamStrength() +" " + " vs Team2: " + team2.getName() + " Strength" + team2.getTeamStrength());
+    public GameResult generateResult(FootballClub team1, FootballClub team2) {
         Map<String, Integer> randomFactorTeam1 = getRandomFactor();
         Map<String, Integer> randomFactorTeam2 = getRandomFactor();
         String keyTeam1 = randomFactorTeam1.keySet().iterator().next();
@@ -26,24 +26,33 @@ public class GameResultGenerator {
         int team1Strength = team1.getTeamStrength() + randomFactorTeam1.get(keyTeam1);
         int team2Strength = team2.getTeamStrength() + randomFactorTeam2.get(keyTeam2);
 
-        System.out.println("Team1 strength: " + team1Strength + " " + keyTeam1 + ": " + randomFactorTeam1.get(keyTeam1));
-        System.out.println("Team2 strength: " + team2Strength + " " + keyTeam2 + ": " + randomFactorTeam2.get(keyTeam2));
         int totalStrength = team1Strength + team2Strength;
 
         double team1WinProbability = (double) team1Strength / totalStrength;
         double team2WinProbability = (double) team2Strength / totalStrength;
-        double drawProbability = 1 - Math.abs(team1WinProbability - team2WinProbability);
 
-        double random = Math.random();
-        if (random < team1WinProbability) {
+        int team1Goals = (int) Math.round(RANDOM.nextGaussian() * team1WinProbability * 3);
+        int team2Goals = (int) Math.round(RANDOM.nextGaussian() * team2WinProbability * 3);
+
+        team1Goals = Math.max(0, team1Goals); // Ensure goals are not negative
+        team2Goals = Math.max(0, team2Goals); // Ensure goals are not negative
+
+        String result = team1Goals + "-" + team2Goals;
+
+        if (team1Goals > team2Goals) {
             updateStrengths(team1, team2, team1.getName() + " wins");
-            return team1.getName() + " wins" + team1.getTeamStrength();
-        } else if (random < team1WinProbability + drawProbability) {
-            return "Draw";
-        } else {
+        } else if (team1Goals < team2Goals) {
             updateStrengths(team1, team2, team2.getName() + " wins");
-            return team2.getName() + " wins" + team2.getTeamStrength();
         }
+
+        GameResult gameResult = new GameResult();
+        gameResult.setResult(result);
+        gameResult.setTeam1InitialStrength("Team1: " + team1.getName() + " Initial Strength: " + team1.getTeamStrength() + " Random Factor (" + keyTeam1 + "): " + randomFactorTeam1.get(keyTeam1) + " Final Strength: " + team1Strength);
+        gameResult.setTeam2InitialStrength("Team2: " + team2.getName() + " Initial Strength: " + team2.getTeamStrength() + " Random Factor (" + keyTeam2 + "): " + randomFactorTeam2.get(keyTeam2) + " Final Strength: " + team2Strength);
+        gameResult.setTeam1FinalStrength("Team1: " + team1.getName() + " Strength after match: " + team1.getTeamStrength());
+        gameResult.setTeam2FinalStrength("Team2: " + team2.getName() + " Strength after match: " + team2.getTeamStrength());
+
+        return gameResult;
     }
 
     private  Map<String,Integer> getRandomFactor() {
