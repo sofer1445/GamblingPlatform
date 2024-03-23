@@ -9,6 +9,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.example.entities.User;
 import org.example.entities.FootballClub;
 import org.example.entities.League;
+import org.example.entities.Match;
+import org.example.entities.Bet;
 
 import javax.annotation.PostConstruct;
 import javax.persistence.Query;
@@ -208,7 +210,34 @@ public class Persist {
 
     }
 
+    public void createMatch(Match match) {
+        try {
+            Session session = sessionFactory.getCurrentSession();
+            session.save(match);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
+    public void createBet(Bet bet) {
+        try {
+            Session session = sessionFactory.getCurrentSession();
+            session.save(bet);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public List<Match> getMatches() {
+        List<Match> matches = null;
+        try {
+            Session session = sessionFactory.getCurrentSession();
+            matches = session.createQuery("FROM Match").getResultList();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return matches;
+    }
 
 
 }

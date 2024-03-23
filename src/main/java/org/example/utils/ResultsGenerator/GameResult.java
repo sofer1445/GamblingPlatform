@@ -61,11 +61,24 @@ public class GameResult {
     @Override
     public String toString() {
         return "GameResult{" +
-                "result='" + result + '\'' +
-                ", team1InitialStrength='" + team1InitialStrength + '\'' +
-                ", team2InitialStrength='" + team2InitialStrength + '\'' +
-                ", team1FinalStrength='" + team1FinalStrength + '\'' +
-                ", team2FinalStrength='" + team2FinalStrength + '\'' +
+                " result='" + result + '\n' +
+                "team1 Initial Strength='" + team1InitialStrength + '\n' +
+                "team2 Initial Strength='" + team2InitialStrength + '\n' +
+                "team1 Final Strength='" + team1FinalStrength + '\n' +
+                "team2 Final Strength='" + team2FinalStrength + '\n' +
                 '}';
+    }
+
+    public String getWinningTeamName() {
+        String[] resultArray = result.split("-");
+        int team1Goals = Integer.parseInt(resultArray[0]);
+        int team2Goals = Integer.parseInt(resultArray[1]);
+        if (team1Goals > team2Goals) {
+            return team1InitialStrength.split(":")[1].split(" ")[1].trim();
+        } else if (team1Goals < team2Goals) {
+            return team2InitialStrength.split(":")[1].split(" ")[1].trim();
+        } else {
+            return "Draw";
+        }
     }
 }

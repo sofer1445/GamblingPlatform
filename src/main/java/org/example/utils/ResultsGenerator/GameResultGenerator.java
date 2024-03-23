@@ -10,24 +10,21 @@ public class GameResultGenerator {
     private  final int RANDOM_FACTOR_RANGE = 20; // -10 to 10
     private  final Random RANDOM = new Random();
 
-    public static void main(String[] args) {
-        GameResultGenerator gameResultGenerator = new GameResultGenerator();
-        FootballClub team1 = new FootballClub("Team 1", 30);
-        FootballClub team2 = new FootballClub("Team 2", 70);
-        System.out.println(gameResultGenerator.generateResult(team1, team2));
-    }
+//    public static void main(String[] args) {
+//        GameResultGenerator gameResultGenerator = new GameResultGenerator();
+//        FootballClub team1 = new FootballClub("Team 1", 30);
+//        FootballClub team2 = new FootballClub("Team 2", 70);
+//        System.out.println(gameResultGenerator.generateResult(team1, team2).toString());
+//    }
 
     public GameResult generateResult(FootballClub team1, FootballClub team2) {
         Map<String, Integer> randomFactorTeam1 = getRandomFactor();
         Map<String, Integer> randomFactorTeam2 = getRandomFactor();
         String keyTeam1 = randomFactorTeam1.keySet().iterator().next();
         String keyTeam2 = randomFactorTeam2.keySet().iterator().next();
-
         int team1Strength = team1.getTeamStrength() + randomFactorTeam1.get(keyTeam1);
         int team2Strength = team2.getTeamStrength() + randomFactorTeam2.get(keyTeam2);
-
         int totalStrength = team1Strength + team2Strength;
-
         double team1WinProbability = (double) team1Strength / totalStrength;
         double team2WinProbability = (double) team2Strength / totalStrength;
 

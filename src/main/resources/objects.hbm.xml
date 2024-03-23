@@ -36,4 +36,24 @@
             <many-to-many class="org.example.entities.FootballClub"/>
         </map>
     </class>
+
+    <class name="org.example.entities.Match" table="matches" lazy="false">
+        <id name="idMatch" type="int" column="idMatch">
+            <generator class="native"/>
+        </id>
+        <many-to-one name="homeTeam" class="org.example.entities.FootballClub" column="homeTeam"/>
+        <many-to-one name="awayTeam" class="org.example.entities.FootballClub" column="awayTeam"/>
+        <property name="result" type="string" column="result"/>
+    </class>
+
+    <class name="org.example.entities.Bet" table="bets" lazy="false">
+        <id name="idBet" type="int" column="idBet">
+            <generator class="native"/>
+        </id>
+        <property name="secretUser" type="string" column="secretUser"/>
+        <many-to-one name="match" class="org.example.entities.Match" column="match"/>
+        <property name="predictedResult" type="string" column="bet"/>
+    </class>
+
+
 </hibernate-mapping>
