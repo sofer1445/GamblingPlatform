@@ -1,6 +1,7 @@
 package org.example.entities;
 
 public class Match {
+    // המשחק צריך לקבל קבוצה בית וקבוצה חוץ ותוצאה
     private int idMatch;
     private FootballClub homeTeam;
     private FootballClub awayTeam;
@@ -10,6 +11,8 @@ public class Match {
         this.homeTeam = homeTeam;
         this.awayTeam = awayTeam;
         this.result = result;
+    }
+    public Match() {
     }
 
     public FootballClub getHomeTeam() {

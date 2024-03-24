@@ -51,8 +51,10 @@
             <generator class="native"/>
         </id>
         <property name="secretUser" type="string" column="secretUser"/>
-        <many-to-one name="match" class="org.example.entities.Match" column="match"/>
+        <many-to-one name="match" class="org.example.entities.Match" column="`match`"/>
+        <many-to-one name="predictedWinner" class="org.example.entities.FootballClub" column="predictedWinner"/>
         <property name="predictedResult" type="string" column="bet"/>
+        <property name="status" type="boolean" column="status"/>
     </class>
 
 

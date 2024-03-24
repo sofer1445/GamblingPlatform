@@ -1,5 +1,7 @@
 package org.example.controllers;
 
+import org.example.entities.Bet;
+import org.example.entities.Match;
 import org.example.entities.User;
 import org.example.responses.BasicResponse;
 import org.example.responses.LoginResponse;
@@ -23,6 +25,7 @@ public class GeneralController {
 
     @Autowired
     private Persist persist;
+//    private List<User> users = persist.getUsers();
 
 
 
@@ -58,6 +61,9 @@ public class GeneralController {
                 if (mail != null && mail.length() > 0) {
                     if (EmailValidator.isValid(mail)) {
                         List<User> users = persist.getUsers();
+                        if(users == null){
+                            return false;
+                        }
                         for (User user : users) {
                             if (user.getMail().equals(mail)) {
                                 return false;
@@ -116,20 +122,93 @@ public class GeneralController {
         return success;
     }
 
+    @RequestMapping (value = "get-clubs")
+    public List<FootballClub> getClubs () {
+        return persist.getClubs();
+    }
+
     @RequestMapping (value = "generate-result")
-    public String generateResult (String secretNewUser , FootballClub team1Name, FootballClub team2Name) {
+    public String generateResult (String secretNewUser , String team1Name, String team2Name) {
+        FootballClub team1 = new FootballClub();
+        FootballClub team2 = new FootballClub();
         if (secretNewUser != null && secretNewUser.length() > 0) {
             List<User> users = persist.getUsers();
+            List<FootballClub> footballClubs = persist.getClubs();
+            for (FootballClub footballClub : footballClubs) {
+                if(footballClub.getName().equals(team1Name)){
+                    team1 = footballClub;
+                }
+                if(footballClub.getName().equals(team2Name)){
+                    team2 = footballClub;
+                }
+            }
             for (User user : users) {
                 if (user.getSecret().equals(secretNewUser)) {
+                    String resultOfMatch = "";
                     GameResultGenerator gameResultGenerator = new GameResultGenerator();
-                    return gameResultGenerator.generateResult(team1Name, team2Name).getResult();
+                    resultOfMatch = gameResultGenerator.generateResult(team1, team2).getResult();
+                    Match match = new Match(team1, team2, resultOfMatch);
+                    this.persist.createMatch(match);
+                    return resultOfMatch;
+
                 }
             }
         }
         return null;
-
     }
+
+    @RequestMapping (value = "add-bet-result")
+    public boolean addBet (String secretNewUser ,int idMatch, String betOnResult) {
+        Match newMatch = new Match();
+        if (secretNewUser != null && secretNewUser.length() > 0) {
+            List<User> users = persist.getUsers();
+            List<Match> matches = persist.getMatches();
+            for (Match match : matches) {
+                if(match.getIdMatch() == idMatch){
+                    newMatch = match;
+                }
+            }
+            for (User user : users) {
+                if (user.getSecret().equals(secretNewUser)) {
+                    Bet bet = new Bet(user.getSecret(),newMatch, betOnResult);
+                    this.persist.createBet(bet);
+                    return true;
+
+                }
+            }
+        }
+        return false;
+    }
+
+    @RequestMapping (value = "add-bet-win")
+public boolean addBetWin (String secretNewUser ,int idMatch , String betOnWin) {
+        Match newMatch = new Match();
+        if (secretNewUser != null && secretNewUser.length() > 0) {
+            List<User> users = persist.getUsers();
+            List<Match> matches = persist.getMatches();
+            for (Match match : matches) {
+                if(match.getIdMatch() == idMatch){
+                    newMatch = match;
+                }
+            }
+            for (User user : users) {
+                if (user.getSecret().equals(secretNewUser)) {
+                    FootballClub team = new FootballClub();
+                    List<FootballClub> footballClubs = persist.getClubs();
+                    for (FootballClub footballClub : footballClubs) {
+                        if(footballClub.getName().equals(betOnWin)){
+                            team = footballClub;
+                        }
+                    }
+                    Bet bet = new Bet(user.getSecret(),newMatch, team);
+                    this.persist.createBet(bet);
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
 
 
 }

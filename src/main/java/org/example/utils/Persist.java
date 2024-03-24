@@ -189,7 +189,10 @@ public class Persist {
     public void saveLeague(League league) {
         try {
             Session session = sessionFactory.getCurrentSession();
-            session.save(league);
+            League existingLeague = session.get(League.class, league.getName());
+            if (existingLeague == null) {
+                session.save(league);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -237,6 +240,17 @@ public class Persist {
             e.printStackTrace();
         }
         return matches;
+    }
+
+    public List<Bet> getBets() {
+        List<Bet> bets = null;
+        try {
+            Session session = sessionFactory.getCurrentSession();
+            bets = session.createQuery("FROM Bet").getResultList();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return bets;
     }
 
 
