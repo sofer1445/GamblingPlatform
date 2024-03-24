@@ -253,7 +253,72 @@ public class Persist {
         return bets;
     }
 
+    public void updateStatus(Bet bet , boolean status) {
+        try {
+            Session session = sessionFactory.getCurrentSession();
+            bet.setStatus(status);
+            session.update(bet);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
+    public User getUserBySecret(String secret) {
+        try {
+            Session session = sessionFactory.getCurrentSession();
+            return session.createQuery("FROM User WHERE secret = :secret", User.class)
+                    .setParameter("secret", secret)
+                    .uniqueResult();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+
+    public Bet getBetById(int idBet) {
+        try {
+            Session session = sessionFactory.getCurrentSession();
+            return session.get(Bet.class, idBet);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public Match getMatchById(int idMatch) {
+        try {
+            Session session = sessionFactory.getCurrentSession();
+            return session.get(Match.class, idMatch);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public User getUserByUsername(String username) {
+        try {
+            Session session = sessionFactory.getCurrentSession();
+            return session.createQuery("FROM User WHERE username = :username", User.class)
+                    .setParameter("username", username)
+                    .uniqueResult();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public User getUserByMail(String mail) {
+        try {
+            Session session = sessionFactory.getCurrentSession();
+            return session.createQuery("FROM User WHERE mail = :mail", User.class)
+                    .setParameter("mail", mail)
+                    .uniqueResult();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }
 
 

@@ -56,30 +56,14 @@ public class GeneralController {
 
     @RequestMapping (value = "add-user")
     public boolean addUser (String username, String password , String mail) {
-        if (username != null && username.length() > 0) {
-            if (password != null && password.length() > 0) {
-                if (mail != null && mail.length() > 0) {
-                    if (EmailValidator.isValid(mail)) {
-                        List<User> users = persist.getUsers();
-                        if(users == null){
-                            return false;
-                        }
-                        for (User user : users) {
-                            if (user.getMail().equals(mail)) {
-                                return false;
-                            }
-                        }
-                        if (PasswordValidator.isValid(password)) {
-                            for (User user : users) {
-                                if (user.getUsername().equals(username)) {
-                                    return false;
-                                }
-                            }
-                            User user = new User(username, password, mail);
-                            persist.addUser(user);
-                            return true;
-                        }
-                    }
+        if (username != null && !username.isEmpty() && password != null && !password.isEmpty() && mail != null && !mail.isEmpty()) {
+            if (EmailValidator.isValid(mail) && PasswordValidator.isValid(password)) {
+                User existingUserByUsername = persist.getUserByUsername(username);
+                User existingUserByMail = persist.getUserByMail(mail);
+                if (existingUserByUsername == null && existingUserByMail == null) {
+                    User user = new User(username, password, mail);
+                    persist.addUser(user);
+                    return true;
                 }
             }
         }
@@ -202,6 +186,33 @@ public boolean addBetWin (String secretNewUser ,int idMatch , String betOnWin) {
                     }
                     Bet bet = new Bet(user.getSecret(),newMatch, team);
                     this.persist.createBet(bet);
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    @RequestMapping (value = "get-matches")
+    public List<Match> getMatches () {
+        return persist.getMatches();
+    }
+
+    @RequestMapping (value = "get-bets")
+    public List<Bet> getBets () {
+        return persist.getBets();
+    }
+
+    @RequestMapping (value = "check-bet")
+    public boolean checkBet (String secretNewUser ,int idBet , int idMatch) {
+        if (secretNewUser != null && !secretNewUser.isEmpty()) {
+            User user = persist.getUserBySecret(secretNewUser);
+            Bet bet = persist.getBetById(idBet);
+            Match match = persist.getMatchById(idMatch);
+
+            if (user != null && bet != null && match != null) {
+                if (user.getSecret().equals(bet.getSecretUser()) && match.getResult().equals(bet.getPredictedResult())) {
+                    persist.updateStatus(bet, true);
                     return true;
                 }
             }
