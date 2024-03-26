@@ -42,7 +42,7 @@ public class BettingSystem {
             String predictedResult = bet.getPredictedResult();
             FootballClub predictedWinner = bet.getPredictedWinner();
             GameResult gameResult = gameResultGenerator.generateResult(team1, team2);
-            String actualResult = gameResult.getResult();
+            String actualResult = gameResult.getResult().keySet().iterator().next();
             String winningTeam = gameResult.getWinningTeamName();
             System.out.println("User: " + bet.getSecretUser());
             if (predictedResult != null) {

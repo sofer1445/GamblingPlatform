@@ -7,6 +7,7 @@ import org.example.responses.BasicResponse;
 import org.example.responses.LoginResponse;
 import org.example.utils.Persist;
 import org.example.entities.FootballClub;
+import org.example.utils.ResultsGenerator.GameResult;
 import org.example.utils.Validator.EmailValidator;
 import org.example.utils.Validator.PasswordValidator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,9 +15,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.example.utils.ResultsGenerator.GameResultGenerator;
-
+import org.example.utils.ResultsGenerator.GameResult;
 import javax.annotation.PostConstruct;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
 
 import static org.example.utils.Errors.*;
 
@@ -28,9 +32,8 @@ public class GeneralController {
 //    private List<User> users = persist.getUsers();
 
 
-
-    @RequestMapping (value = "/login", method = {RequestMethod.GET, RequestMethod.POST})
-    public BasicResponse login (String username, String password) {
+    @RequestMapping(value = "/login", method = {RequestMethod.GET, RequestMethod.POST})
+    public BasicResponse login(String username, String password) {
         BasicResponse basicResponse = null;
         boolean success = false;
         Integer errorCode = null;
@@ -54,8 +57,8 @@ public class GeneralController {
         return basicResponse;
     }
 
-    @RequestMapping (value = "add-user")
-    public boolean addUser (String username, String password , String mail) {
+    @RequestMapping(value = "add-user")
+    public boolean addUser(String username, String password, String mail) {
         if (username != null && !username.isEmpty() && password != null && !password.isEmpty() && mail != null && !mail.isEmpty()) {
             if (EmailValidator.isValid(mail) && PasswordValidator.isValid(password)) {
                 User existingUserByUsername = persist.getUserByUsername(username);
@@ -70,91 +73,76 @@ public class GeneralController {
         return false;
     }
 
-    @RequestMapping (value = "edit-user")
-    public boolean editUser (String secretNewUser , String username, String password , String mail) {
+    @RequestMapping(value = "edit-user")
+    public boolean editUser(String secretNewUser, String username, String password, String mail) {
         boolean success = false;
-        if (secretNewUser != null && secretNewUser.length() > 0) {
-            List<User> users = persist.getUsers();
-            for (User user : users) {
-                if (user.getSecret().equals(secretNewUser)) {
-                    User newUser = user;
-                    if (username != null && username.length() > 0) {
-                        newUser.setUsername(username);
+        if (secretNewUser != null && !secretNewUser.isEmpty()) {
+            User user = persist.getUserBySecret(secretNewUser);
+            if (user != null) {
+                User newUser = user;
+                if (username != null && !username.isEmpty()) {
+                    newUser.setUsername(username);
+                } else {
+                    return success;
+                }
+                if (password != null && !password.isEmpty()) {
+                    if (PasswordValidator.isValid(password)) {
+                        newUser.setPassword(password);
                     } else {
                         return success;
                     }
-                    if (password != null && password.length() > 0) {
-                        if (PasswordValidator.isValid(password)) {
-                            newUser.setPassword(password);
-                        } else {
-                            return success;
-                        }
-                    }
-                    if (mail != null && mail.length() > 0) {
-                        if (EmailValidator.isValid(mail)) {
-                            newUser.setMail(mail);
-                        } else {
-                            return success;
-                        }
-                    }
-
-                    return persist.editUser(newUser);
                 }
+                if (mail != null && !mail.isEmpty()) {
+                    if (EmailValidator.isValid(mail)) {
+                        newUser.setMail(mail);
+                    } else {
+                        return success;
+                    }
+                }
+
+                return persist.editUser(newUser);
             }
-            return success;
         }
         return success;
     }
 
-    @RequestMapping (value = "get-clubs")
-    public List<FootballClub> getClubs () {
+    @RequestMapping(value = "get-clubs")
+    public List<FootballClub> getClubs() {
         return persist.getClubs();
     }
 
-    @RequestMapping (value = "generate-result")
-    public String generateResult (String secretNewUser , String team1Name, String team2Name) {
-        FootballClub team1 = new FootballClub();
-        FootballClub team2 = new FootballClub();
-        if (secretNewUser != null && secretNewUser.length() > 0) {
-            List<User> users = persist.getUsers();
-            List<FootballClub> footballClubs = persist.getClubs();
-            for (FootballClub footballClub : footballClubs) {
-                if(footballClub.getName().equals(team1Name)){
-                    team1 = footballClub;
-                }
-                if(footballClub.getName().equals(team2Name)){
-                    team2 = footballClub;
-                }
-            }
-            for (User user : users) {
-                if (user.getSecret().equals(secretNewUser)) {
-                    String resultOfMatch = "";
-                    GameResultGenerator gameResultGenerator = new GameResultGenerator();
-                    resultOfMatch = gameResultGenerator.generateResult(team1, team2).getResult();
-                    Match match = new Match(team1, team2, resultOfMatch);
-                    this.persist.createMatch(match);
-                    return resultOfMatch;
+    @RequestMapping(value = "generate-result")
+    public GameResult generateResult(String secretNewUser, String team1Name, String team2Name) {
+        if (secretNewUser != null && !secretNewUser.isEmpty()) {
+            User user = persist.getUserBySecret(secretNewUser);
+            FootballClub team1 = persist.getClubByName(team1Name);
+            FootballClub team2 = persist.getClubByName(team2Name);
 
-                }
+            if (user != null && team1 != null && team2 != null) {
+                GameResultGenerator gameResultGenerator = new GameResultGenerator();
+                GameResult resultOfMatch = gameResultGenerator.generateResult(team1, team2);
+                Match match = new Match(team1, team2, resultOfMatch.getResult().keySet().iterator().next());
+                this.persist.createMatch(match);
+                return resultOfMatch;
             }
         }
         return null;
     }
 
-    @RequestMapping (value = "add-bet-result")
-    public boolean addBet (String secretNewUser ,int idMatch, String betOnResult) {
+    @RequestMapping(value = "add-bet-result")
+    public boolean addBet(String secretNewUser, int idMatch, String betOnResult) {
         Match newMatch = new Match();
         if (secretNewUser != null && secretNewUser.length() > 0) {
             List<User> users = persist.getUsers();
             List<Match> matches = persist.getMatches();
             for (Match match : matches) {
-                if(match.getIdMatch() == idMatch){
+                if (match.getIdMatch() == idMatch) {
                     newMatch = match;
                 }
             }
             for (User user : users) {
                 if (user.getSecret().equals(secretNewUser)) {
-                    Bet bet = new Bet(user.getSecret(),newMatch, betOnResult);
+                    Bet bet = new Bet(user.getSecret(), newMatch, betOnResult);
                     this.persist.createBet(bet);
                     return true;
 
@@ -164,54 +152,58 @@ public class GeneralController {
         return false;
     }
 
-    @RequestMapping (value = "add-bet-win")
-public boolean addBetWin (String secretNewUser ,int idMatch , String betOnWin) {
-        Match newMatch = new Match();
-        if (secretNewUser != null && secretNewUser.length() > 0) {
-            List<User> users = persist.getUsers();
-            List<Match> matches = persist.getMatches();
-            for (Match match : matches) {
-                if(match.getIdMatch() == idMatch){
-                    newMatch = match;
-                }
-            }
-            for (User user : users) {
-                if (user.getSecret().equals(secretNewUser)) {
-                    FootballClub team = new FootballClub();
-                    List<FootballClub> footballClubs = persist.getClubs();
-                    for (FootballClub footballClub : footballClubs) {
-                        if(footballClub.getName().equals(betOnWin)){
-                            team = footballClub;
-                        }
-                    }
-                    Bet bet = new Bet(user.getSecret(),newMatch, team);
-                    this.persist.createBet(bet);
-                    return true;
-                }
-            }
+    @RequestMapping(value = "add-bet-win")
+    public boolean addBetWin(String secretNewUser, int idMatch, String betOnWin) {
+        if (secretNewUser == null || secretNewUser.isEmpty() || idMatch == 0 || betOnWin == null || betOnWin.isEmpty()) {
+            return false;
         }
+        Match newMatch = persist.getMatchById(idMatch);
+        User user = persist.getUserBySecret(secretNewUser);
+        FootballClub team;
+        if (user.getSecret().equals(secretNewUser)) {
+            if (betOnWin.equals("draw")) {
+                boolean draw = true;
+                Bet bet = new Bet(user.getSecret(), newMatch, draw);
+                this.persist.createBet(bet);
+                return true;
+            }
+            team = persist.getClubByName(betOnWin);
+            Bet bet = new Bet(user.getSecret(), newMatch, team);
+            this.persist.createBet(bet);
+            return true;
+        }
+
         return false;
     }
 
-    @RequestMapping (value = "get-matches")
-    public List<Match> getMatches () {
+    @RequestMapping(value = "get-matches")
+    public List<Match> getMatches() {
         return persist.getMatches();
     }
 
-    @RequestMapping (value = "get-bets")
-    public List<Bet> getBets () {
+    @RequestMapping(value = "get-bets")
+    public List<Bet> getBets() {
         return persist.getBets();
     }
 
-    @RequestMapping (value = "check-bet")
-    public boolean checkBet (String secretNewUser ,int idBet , int idMatch) {
+    @RequestMapping(value = "check-bet")
+    public boolean checkBet(String secretNewUser, int idBet, int idMatch) {
         if (secretNewUser != null && !secretNewUser.isEmpty()) {
             User user = persist.getUserBySecret(secretNewUser);
             Bet bet = persist.getBetById(idBet);
             Match match = persist.getMatchById(idMatch);
+            GameResult gameResult = new GameResult();
+            gameResult.setResult(Map.of(match.getResult(), match.getHomeTeam().getName()));
+            String winningTeam = gameResult.getWinningTeamName().toLowerCase(Locale.ROOT);
+            if (user != null && bet != null && user.getSecret().equals(bet.getSecretUser())) {
+                if(Objects.equals(winningTeam, "draw") && bet.isDraw()){
+                    persist.updateStatus(bet, true);
+                    return true;
 
-            if (user != null && bet != null && match != null) {
-                if (user.getSecret().equals(bet.getSecretUser()) && match.getResult().equals(bet.getPredictedResult())) {
+                }
+                if (match.getResult().equals(bet.getPredictedResult())
+                        || match.getHomeTeam().getName().equals(bet.getPredictedWinner().getName())
+                        || match.getAwayTeam().getName().equals(bet.getPredictedWinner().getName())) {
                     persist.updateStatus(bet, true);
                     return true;
                 }
@@ -219,9 +211,6 @@ public boolean addBetWin (String secretNewUser ,int idMatch , String betOnWin) {
         }
         return false;
     }
-
-
-
 }
 
 //  @GetMapping(value = "/subscribe")

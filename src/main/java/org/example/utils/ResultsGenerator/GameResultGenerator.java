@@ -35,15 +35,18 @@ public class GameResultGenerator {
         team2Goals = Math.max(0, team2Goals); // Ensure goals are not negative
 
         String result = team1Goals + "-" + team2Goals;
-
+        String winningTeam ;
+        GameResult gameResult = new GameResult();
         if (team1Goals > team2Goals) {
             updateStrengths(team1, team2, team1.getName() + " wins");
+            winningTeam = team1.getName();
         } else if (team1Goals < team2Goals) {
             updateStrengths(team1, team2, team2.getName() + " wins");
+            winningTeam = team2.getName();
+        } else {
+            winningTeam = "Draw";
         }
-
-        GameResult gameResult = new GameResult();
-        gameResult.setResult(result);
+        gameResult.setResult(Map.of(result, winningTeam));
         gameResult.setTeam1InitialStrength("Team1: " + team1.getName() + " Initial Strength: " + team1.getTeamStrength() + " Random Factor (" + keyTeam1 + "): " + randomFactorTeam1.get(keyTeam1) + " Final Strength: " + team1Strength);
         gameResult.setTeam2InitialStrength("Team2: " + team2.getName() + " Initial Strength: " + team2.getTeamStrength() + " Random Factor (" + keyTeam2 + "): " + randomFactorTeam2.get(keyTeam2) + " Final Strength: " + team2Strength);
         gameResult.setTeam1FinalStrength("Team1: " + team1.getName() + " Strength after match: " + team1.getTeamStrength());

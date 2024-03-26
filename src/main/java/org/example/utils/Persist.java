@@ -252,6 +252,15 @@ public class Persist {
         }
         return bets;
     }
+    public void updateDraw(Bet bet , boolean draw) {
+        try {
+            Session session = sessionFactory.getCurrentSession();
+            bet.setDraw(draw);
+            session.update(bet);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     public void updateStatus(Bet bet , boolean status) {
         try {
@@ -313,6 +322,18 @@ public class Persist {
             Session session = sessionFactory.getCurrentSession();
             return session.createQuery("FROM User WHERE mail = :mail", User.class)
                     .setParameter("mail", mail)
+                    .uniqueResult();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public FootballClub getClubByName(String team1Name) {
+        try {
+            Session session = sessionFactory.getCurrentSession();
+            return session.createQuery("FROM FootballClub WHERE name = :name", FootballClub.class)
+                    .setParameter("name", team1Name)
                     .uniqueResult();
         } catch (Exception e) {
             e.printStackTrace();

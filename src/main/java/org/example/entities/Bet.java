@@ -7,6 +7,7 @@ public class Bet {
     private Match match;
     private String predictedResult;
     private FootballClub predictedWinner;
+    private boolean draw;
     private boolean status;
 
     public Bet(String secretUser, Match match, String predictedResult) {
@@ -15,6 +16,16 @@ public class Bet {
         this.predictedResult = predictedResult;
         this.status = false;
     }
+    public Bet(){
+
+    }
+    public Bet(String secretUser, Match match, boolean draw) {
+        this.secretUser = secretUser;
+        this.match = match;
+        this.draw = draw;
+        this.status = false;
+    }
+
 
     public Bet(String secretUser, Match match, FootballClub predictedWinner) {
         this.secretUser = secretUser;
@@ -68,5 +79,13 @@ public class Bet {
 
     public void setStatus(boolean status) {
         this.status = status;
+    }
+
+    public boolean isDraw() {
+        return draw;
+    }
+
+    public void setDraw(boolean draw) {
+        this.draw = draw;
     }
 }

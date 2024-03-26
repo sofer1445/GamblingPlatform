@@ -1,13 +1,15 @@
 package org.example.utils.ResultsGenerator;
 
+import java.util.Map;
+
 public class GameResult {
-    private String result;
+    private Map<String,String> result;
     private String team1InitialStrength;
     private String team2InitialStrength;
     private String team1FinalStrength;
     private String team2FinalStrength;
 
-    public GameResult(String result, String team1InitialStrength, String team2InitialStrength, String team1FinalStrength, String team2FinalStrength) {
+    public GameResult(Map<String,String> result, String team1InitialStrength, String team2InitialStrength, String team1FinalStrength, String team2FinalStrength) {
         this.result = result;
         this.team1InitialStrength = team1InitialStrength;
         this.team2InitialStrength = team2InitialStrength;
@@ -18,13 +20,7 @@ public class GameResult {
     public GameResult() {
     }
 
-    public String getResult() {
-        return result;
-    }
 
-    public void setResult(String result) {
-        this.result = result;
-    }
 
     public String getTeam1InitialStrength() {
         return team1InitialStrength;
@@ -58,6 +54,14 @@ public class GameResult {
         this.team2FinalStrength = team2FinalStrength;
     }
 
+    public Map<String, String> getResult() {
+        return result;
+    }
+
+    public void setResult(Map<String, String> result) {
+        this.result = result;
+    }
+
     @Override
     public String toString() {
         return "GameResult{" +
@@ -70,13 +74,13 @@ public class GameResult {
     }
 
     public String getWinningTeamName() {
-        String[] resultArray = result.split("-");
+        String[] resultArray = result.keySet().iterator().next().split("-");
         int team1Goals = Integer.parseInt(resultArray[0]);
         int team2Goals = Integer.parseInt(resultArray[1]);
         if (team1Goals > team2Goals) {
-            return team1InitialStrength.split(":")[1].split(" ")[1].trim();
+            return team1InitialStrength.split(":")[1].trim();
         } else if (team1Goals < team2Goals) {
-            return team2InitialStrength.split(":")[1].split(" ")[1].trim();
+            return team2InitialStrength.split(":")[1].trim();
         } else {
             return "Draw";
         }
