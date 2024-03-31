@@ -9,6 +9,7 @@ public class Bet {
     private FootballClub predictedWinner;
     private boolean draw;
     private boolean status;
+    private int betAmount; // סכום ההימור
 
     public Bet(String secretUser, Match match, String predictedResult) {
         this.secretUser = secretUser;
@@ -83,6 +84,14 @@ public class Bet {
 
     public boolean isDraw() {
         return draw;
+    }
+
+    public int getBetAmount() {
+        return betAmount;
+    }
+
+    public void setBetAmount(int betAmount) {
+        this.betAmount = betAmount;
     }
 
     public void setDraw(boolean draw) {

@@ -15,8 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.example.utils.ResultsGenerator.GameResultGenerator;
-import org.example.utils.ResultsGenerator.GameResult;
-import javax.annotation.PostConstruct;
+import org.example.utils.ResultsGenerator.BettingSystem;
+
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -29,6 +29,8 @@ public class GeneralController {
 
     @Autowired
     private Persist persist;
+    @Autowired
+    private BettingSystem bettingSystem;
 //    private List<User> users = persist.getUsers();
 
 
@@ -196,7 +198,7 @@ public class GeneralController {
             gameResult.setResult(Map.of(match.getResult(), match.getHomeTeam().getName()));
             String winningTeam = gameResult.getWinningTeamName().toLowerCase(Locale.ROOT);
             if (user != null && bet != null && user.getSecret().equals(bet.getSecretUser())) {
-                if(Objects.equals(winningTeam, "draw") && bet.isDraw()){
+                if (Objects.equals(winningTeam, "draw") && bet.isDraw()) {
                     persist.updateStatus(bet, true);
                     return true;
 
@@ -210,6 +212,12 @@ public class GeneralController {
             }
         }
         return false;
+    }
+
+    @RequestMapping(value = "get-ratio-calculation")
+    public Map<String, Double> getRatioCalculation(int idMatch) {
+        Match match = persist.getMatchById(idMatch);
+        return bettingSystem.ratioCalculation(match);
     }
 }
 

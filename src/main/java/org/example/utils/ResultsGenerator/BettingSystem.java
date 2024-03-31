@@ -4,65 +4,102 @@ import org.example.entities.FootballClub;
 import org.example.entities.Bet;
 import org.example.entities.Match;
 import org.example.entities.User;
-import org.example.utils.ResultsGenerator.GameResultGenerator;
+import org.example.utils.Persist;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+@Component
 public class BettingSystem {
 
-    public static void main(String[] args) {
-        BettingSystem bettingSystem = new BettingSystem();
-        User user1 = new User("user1", "password1" , "mail1");
-        User user2 = new User("user2", "password2" , "mail2");
-        FootballClub team1 = new FootballClub("HomeTeam");
-        FootballClub team2 = new FootballClub("AwayTeam");
-        Match match = new Match(team1, team2, "1:0");
-        bettingSystem.placeBet(user1.getSecret(), match, "1:0");
-        bettingSystem.placeBetOnWin(user2.getSecret(), match, team1);
-        bettingSystem.generateResults();
+    @Autowired
+    private Persist persist;
 
-    }
-    private Map<String, Bet> bets = new HashMap<>();
-    private GameResultGenerator gameResultGenerator = new GameResultGenerator();
+    public Map<String, Double> ratioCalculation(Match match) {
+        Map<String, Double> ratios = new HashMap<>();
 
-    public void placeBet(String secretUser, Match match, String predictedResult) {
-        Bet bet = new Bet(secretUser, match, predictedResult);
-        bets.put(secretUser, bet);
-    }
+        double homeTeamStrength = calculateTeamStrength(match.getHomeTeam());
+        double awayTeamStrength = calculateTeamStrength(match.getAwayTeam());
 
-    public void placeBetOnWin(String secretUser, Match match, FootballClub predictedWinner) {
-        Bet bet = new Bet(secretUser, match, predictedWinner);
-        bets.put(secretUser, bet);
+        double homeWinProbability = homeTeamStrength / (homeTeamStrength + awayTeamStrength);
+        double awayWinProbability = awayTeamStrength / (homeTeamStrength + awayTeamStrength);
+        double drawProbability = 1 - Math.max(homeWinProbability, awayWinProbability);
+
+        double homeTeamAveragePoints = calculateAveragePoints(match.getHomeTeam());
+        double awayTeamAveragePoints = calculateAveragePoints(match.getAwayTeam());
+
+        ratios.put("1", calculateOdds(homeWinProbability) * homeTeamAveragePoints);
+        ratios.put("X", calculateOdds(drawProbability));
+        ratios.put("2", calculateOdds(awayWinProbability) * awayTeamAveragePoints);
+
+        return ratios;
     }
 
-    public void generateResults() {
-        for (Bet bet : bets.values()) {
-            FootballClub team1 = bet.getMatch().getHomeTeam();
-            FootballClub team2 = bet.getMatch().getAwayTeam();
-            String predictedResult = bet.getPredictedResult();
-            FootballClub predictedWinner = bet.getPredictedWinner();
-            GameResult gameResult = gameResultGenerator.generateResult(team1, team2);
-            String actualResult = gameResult.getResult().keySet().iterator().next();
-            String winningTeam = gameResult.getWinningTeamName();
-            System.out.println("User: " + bet.getSecretUser());
-            if (predictedResult != null) {
-                System.out.println("Predicted result: " + predictedResult);
-            } else if (predictedWinner != null) {
-                System.out.println("Predicted winning team: " + predictedWinner.getName());
+    private double calculateTeamStrength(FootballClub team) {
+        List<Match> matches = persist.getMatches();
+        int totalGoals = 0;
+        int matchCount = 0;
+
+        for (Match match : matches) {
+            if (match.getHomeTeam().getName().equals(team.getName()) || match.getAwayTeam().getName().equals(team.getName())) {
+                String[] scores = match.getResult().split("-");
+                int homeScore = Integer.parseInt(scores[0]);
+                int awayScore = Integer.parseInt(scores[1]);
+
+                if (match.getHomeTeam().getName().equals(team.getName())) {
+                    totalGoals += homeScore;
+                } else if (match.getAwayTeam().getName().equals(team.getName())) {
+                    totalGoals += awayScore;
+                }
+                matchCount++;
             }
-            System.out.println("Actual result: " + actualResult);
-            System.out.println("Winning team: " + winningTeam);
-            if (predictedResult != null && predictedResult.equals(actualResult)) {
-                System.out.println("Congratulations! You won the bet!");
-            } else if (predictedWinner != null && winningTeam.equals(predictedWinner.getName())) {
-                System.out.println("Congratulations! You won the bet!");
-            } else {
-                System.out.println("Better luck next time!");
+        }
+
+        return (double) totalGoals / matchCount;
+    }
+
+    private double calculateAveragePoints(FootballClub team) {
+        List<Match> matches = persist.getMatches();
+        int totalPoints = 0;
+        int matchCount = 0;
+
+        for (Match match : matches) {
+            if (match.getHomeTeam().getName().equals(team.getName()) || match.getAwayTeam().getName().equals(team.getName())) {
+                String[] scores = match.getResult().split("-");
+                int homeScore = Integer.parseInt(scores[0]);
+                int awayScore = Integer.parseInt(scores[1]);
+
+                if (match.getHomeTeam().getName().equals(team.getName())) {
+                    if (homeScore > awayScore) {
+                        totalPoints += 3;
+                    } else if (homeScore == awayScore) {
+                        totalPoints += 1;
+                    }
+                } else if (match.getAwayTeam().getName().equals(team.getName())) {
+                    if (awayScore > homeScore) {
+                        totalPoints += 3;
+                    } else if (homeScore == awayScore) {
+                        totalPoints += 1;
+                    }
+                }
+                matchCount++;
             }
-            System.out.println("-------------------------------");
+        }
+
+        return (double) totalPoints / matchCount;
+    }
+
+    private double calculateOdds(double probability) {
+        // Ensure the odds are within a reasonable range
+        if (probability >= 0.95) {
+            return 1.05;
+        } else if (probability <= 0.05) {
+            return 2.4;
+        } else {
+            return 1 / probability;
         }
     }
-
-
-
 }
