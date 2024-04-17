@@ -144,9 +144,9 @@ public class GeneralController {
                         Match match = new Match(clubs.get(i), clubs.get(j), resultOfMatch.getResult().keySet().iterator().next());
                         this.persist.createMatch(match);
                         match.setGameProgression(resultOfMatch);
-                        matches.add(match);
                         persist.updateClubs(match);
                         persist.createGameProgression(resultOfMatch);
+                        matches.add(match);
                     }
                 }
                 return matches; // חוזר המשחקים וגם השינוים של הקבוצות
@@ -161,8 +161,7 @@ public class GeneralController {
         Match match = persist.getMatchById(idMatch);
         return Map.of("homeTeam", match.getHomeTeam().getName(),
                 "awayTeam", match.getAwayTeam().getName(),
-                "result", match.getResult(),
-                "gameResult", match.getGameProgression().toString());
+                "result", match.getResult());
 
     }
 
@@ -179,12 +178,10 @@ public class GeneralController {
                 "matchesPlayed", String.valueOf(club.getMatchesPlayed()));
     }
 
-//    @RequestMapping(value = "get-game-result-object")
-//    public GameResult getGameResultObject(int idMatch) {
-//        Match match = persist.getMatchById(idMatch);
-//        return match.getGameResult();
-//
-//    }
+    @RequestMapping(value = "get-game-progression")
+    public GameProgression getGameResultObject(int idGameProgression) {
+        return persist.getGameProgressionById(idGameProgression);
+    }
 
     @RequestMapping(value = "add-bet-result")
     public boolean addBet(String secretNewUser, int idMatch, String betOnResult) {

@@ -359,6 +359,16 @@ public class Persist {
         return null;
     }
 
+    public GameProgression getGameProgressionById(int idGameProgression) {
+        try {
+            Session session = sessionFactory.getCurrentSession();
+            return session.get(GameProgression.class, idGameProgression);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public User getUserByUsername(String username) {
         try {
             Session session = sessionFactory.getCurrentSession();

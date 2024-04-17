@@ -46,7 +46,7 @@
         <many-to-one name="homeTeam" class="org.example.entities.FootballClub" column="homeTeam"/>
         <many-to-one name="awayTeam" class="org.example.entities.FootballClub" column="awayTeam"/>
         <property name="result" type="string" column="result"/>
-        <many-to-one name="gameProgression" class="org.example.utils.ResultsGenerator.GameProgression" column="gameProgression"/>
+<!--        <many-to-one name="gameProgression" class="org.example.utils.ResultsGenerator.GameProgression" column="gameProgression"/>-->
     </class>
 
     <class name="org.example.utils.ResultsGenerator.GameProgression" table="gameProgressions" lazy="false">
