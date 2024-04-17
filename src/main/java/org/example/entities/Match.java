@@ -1,11 +1,14 @@
 package org.example.entities;
 
+import org.example.utils.ResultsGenerator.GameProgression;
+
 public class Match {
     // המשחק צריך לקבל קבוצה בית וקבוצה חוץ ותוצאה
     private int idMatch;
     private FootballClub homeTeam;
     private FootballClub awayTeam;
     private String result;
+    private GameProgression gameProgression;
 
     public Match(FootballClub homeTeam, FootballClub awayTeam, String result) {
         this.homeTeam = homeTeam;
@@ -46,4 +49,13 @@ public class Match {
     public void setIdMatch(int idMatch) {
         this.idMatch = idMatch;
     }
+
+    public GameProgression getGameProgression() {
+        return gameProgression;
+    }
+
+    public void setGameProgression(GameProgression gameProgression) {
+        this.gameProgression = gameProgression;
+    }
+
 }

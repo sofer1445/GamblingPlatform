@@ -7,7 +7,7 @@ import org.example.responses.BasicResponse;
 import org.example.responses.LoginResponse;
 import org.example.utils.Persist;
 import org.example.entities.FootballClub;
-import org.example.utils.ResultsGenerator.GameResult;
+import org.example.utils.ResultsGenerator.GameProgression;
 import org.example.utils.Validator.EmailValidator;
 import org.example.utils.Validator.PasswordValidator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,10 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.example.utils.ResultsGenerator.GameResultGenerator;
 import org.example.utils.ResultsGenerator.BettingSystem;
 
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 import static org.example.utils.Errors.*;
 
@@ -114,7 +111,7 @@ public class GeneralController {
     }
 
     @RequestMapping(value = "generate-result")
-    public GameResult generateResult(String secretNewUser, String team1Name, String team2Name) {
+    public GameProgression generateResult(String secretNewUser, String team1Name, String team2Name) {
         if (secretNewUser != null && !secretNewUser.isEmpty()) {
             User user = persist.getUserBySecret(secretNewUser);
             FootballClub team1 = persist.getClubByName(team1Name);
@@ -122,7 +119,7 @@ public class GeneralController {
 
             if (user != null && team1 != null && team2 != null) {
                 GameResultGenerator gameResultGenerator = new GameResultGenerator();
-                GameResult resultOfMatch = gameResultGenerator.generateResult(team1, team2);
+                GameProgression resultOfMatch = gameResultGenerator.generateResult(team1, team2);
                 Match match = new Match(team1, team2, resultOfMatch.getResult().keySet().iterator().next());
                 this.persist.createMatch(match);
                 return resultOfMatch;
@@ -130,6 +127,64 @@ public class GeneralController {
         }
         return null;
     }
+
+    @RequestMapping(value = "generate-full-round")
+    public List<Match> generateFullRound(String secretNewUser) {
+        if (secretNewUser != null && !secretNewUser.isEmpty()) {
+            User user = persist.getUserBySecret(secretNewUser);
+            if (user != null) {
+                List<FootballClub> clubs = persist.getClubs();
+                List<Match> matches = new ArrayList<>();
+                for (int i = 0; i < clubs.size(); i++) {
+                    for (int j = i + 1; j < clubs.size(); j++) {
+                        GameResultGenerator gameResultGenerator = new GameResultGenerator();
+                        GameProgression resultOfMatch = gameResultGenerator.generateResult(clubs.get(i), clubs.get(j));
+                        clubs.get(i).updateStrengths(clubs.get(i), clubs.get(j), resultOfMatch.getWinningTeamName());
+                        clubs.get(j).updateStrengths(clubs.get(j), clubs.get(i), resultOfMatch.getWinningTeamName());
+                        Match match = new Match(clubs.get(i), clubs.get(j), resultOfMatch.getResult().keySet().iterator().next());
+                        this.persist.createMatch(match);
+                        match.setGameProgression(resultOfMatch);
+                        matches.add(match);
+                        persist.updateClubs(match);
+                        persist.createGameProgression(resultOfMatch);
+                    }
+                }
+                return matches; // חוזר המשחקים וגם השינוים של הקבוצות
+            }
+        }
+
+        return null;
+    }
+
+    @RequestMapping(value = "get-info-game")
+    public Map<String, String> getInfoGame(int idMatch) {
+        Match match = persist.getMatchById(idMatch);
+        return Map.of("homeTeam", match.getHomeTeam().getName(),
+                "awayTeam", match.getAwayTeam().getName(),
+                "result", match.getResult(),
+                "gameResult", match.getGameProgression().toString());
+
+    }
+
+    @RequestMapping(value = "get-info-club")
+    public Map<String, String> getInfoClub(String clubName) {
+        FootballClub club = persist.getClubByName(clubName);
+        return Map.of("name", club.getName(),
+                "strength", String.valueOf(club.getTeamStrength()),
+                "wins", String.valueOf(club.getWins()),
+                "draws", String.valueOf(club.getDraws()),
+                "losses", String.valueOf(club.getLosses()),
+                "goalsScored", String.valueOf(club.getGoalsScored()),
+                "goalsConceded", String.valueOf(club.getGoalsConceded()),
+                "matchesPlayed", String.valueOf(club.getMatchesPlayed()));
+    }
+
+//    @RequestMapping(value = "get-game-result-object")
+//    public GameResult getGameResultObject(int idMatch) {
+//        Match match = persist.getMatchById(idMatch);
+//        return match.getGameResult();
+//
+//    }
 
     @RequestMapping(value = "add-bet-result")
     public boolean addBet(String secretNewUser, int idMatch, String betOnResult) {
@@ -194,9 +249,9 @@ public class GeneralController {
             User user = persist.getUserBySecret(secretNewUser);
             Bet bet = persist.getBetById(idBet);
             Match match = persist.getMatchById(idMatch);
-            GameResult gameResult = new GameResult();
-            gameResult.setResult(Map.of(match.getResult(), match.getHomeTeam().getName()));
-            String winningTeam = gameResult.getWinningTeamName().toLowerCase(Locale.ROOT);
+            GameProgression gameProgression = new GameProgression();
+            gameProgression.setResult(Map.of(match.getResult(), match.getHomeTeam().getName()));
+            String winningTeam = gameProgression.getWinningTeamName().toLowerCase(Locale.ROOT);
             if (user != null && bet != null && user.getSecret().equals(bet.getSecretUser())) {
                 if (Objects.equals(winningTeam, "draw") && bet.isDraw()) {
                     persist.updateStatus(bet, true);

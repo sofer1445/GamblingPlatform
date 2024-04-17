@@ -26,6 +26,8 @@
         <property name="teamStrength" type="int" column="teamStrength"/>
     </class>
 
+
+
     <class name="org.example.entities.League" table="league" lazy="false">
         <id name="name" type="string" column="name">
             <generator class="assigned"/>
@@ -44,6 +46,27 @@
         <many-to-one name="homeTeam" class="org.example.entities.FootballClub" column="homeTeam"/>
         <many-to-one name="awayTeam" class="org.example.entities.FootballClub" column="awayTeam"/>
         <property name="result" type="string" column="result"/>
+        <many-to-one name="gameProgression" class="org.example.utils.ResultsGenerator.GameProgression" column="gameProgression"/>
+    </class>
+
+    <class name="org.example.utils.ResultsGenerator.GameProgression" table="gameProgressions" lazy="false">
+        <id name="id" type="int" column="id">
+            <generator class="native"/>
+        </id>
+        <property name="team1InitialStrength" type="string" column="team1InitialStrength"/>
+        <property name="team2InitialStrength" type="string" column="team2InitialStrength"/>
+        <property name="team1FinalStrength" type="string" column="team1FinalStrength"/>
+        <property name="team2FinalStrength" type="string" column="team2FinalStrength"/>
+        <map name="result" table="gameProgressions_result" lazy="false">
+            <key column="gameProgressionId"/>
+            <map-key column="team" type="string"/>
+            <element column="result" type="string"/>
+        </map>
+        <map name="goalTimes" table="gameProgressions_goalTimes" lazy="false">
+            <key column="gameProgressionId"/>
+            <map-key column="team" type="string"/>
+            <element column="times" type="string"/>
+        </map>
     </class>
 
     <class name="org.example.entities.Bet" table="bets" lazy="false">
@@ -56,7 +79,12 @@
         <property name="predictedResult" type="string" column="bet"/>
         <property name="draw" type="boolean" column="draw"/>
         <property name="status" type="boolean" column="status"/>
+
     </class>
+
+
+
+
 
 
 </hibernate-mapping>

@@ -1,23 +1,25 @@
 package org.example.utils.ResultsGenerator;
 
 import org.example.entities.FootballClub;
+import java.util.stream.Collectors;
 
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 public class GameResultGenerator {
 
     private  final int RANDOM_FACTOR_RANGE = 20; // -10 to 10
     private  final Random RANDOM = new Random();
+    private static final int MATCH_LENGTH = 90; // Length of a match in minutes
+
 
 //    public static void main(String[] args) {
 //        GameResultGenerator gameResultGenerator = new GameResultGenerator();
 //        FootballClub team1 = new FootballClub("Team 1", 30);
-//        FootballClub team2 = new FootballClub("Team 2", 70);
+//        FootballClub team2 = new FootballClub("Team 2", 90);
 //        System.out.println(gameResultGenerator.generateResult(team1, team2).toString());
 //    }
 
-    public GameResult generateResult(FootballClub team1, FootballClub team2) {
+    public GameProgression generateResult(FootballClub team1, FootballClub team2) {
         Map<String, Integer> randomFactorTeam1 = getRandomFactor();
         Map<String, Integer> randomFactorTeam2 = getRandomFactor();
         String keyTeam1 = randomFactorTeam1.keySet().iterator().next();
@@ -36,23 +38,26 @@ public class GameResultGenerator {
 
         String result = team1Goals + "-" + team2Goals;
         String winningTeam ;
-        GameResult gameResult = new GameResult();
+        GameProgression gameProgression = new GameProgression();
+        gameProgression.setGoalTimes(generateGoalTimes(team1, team2, team1Goals, team2Goals));
         if (team1Goals > team2Goals) {
-            updateStrengths(team1, team2, team1.getName() + " wins");
+//            updateStrengths(team1, team2, team1.getName() + " wins");
             winningTeam = team1.getName();
         } else if (team1Goals < team2Goals) {
-            updateStrengths(team1, team2, team2.getName() + " wins");
+//            updateStrengths(team2, team1, team2.getName() + " wins");
             winningTeam = team2.getName();
         } else {
             winningTeam = "Draw";
         }
-        gameResult.setResult(Map.of(result, winningTeam));
-        gameResult.setTeam1InitialStrength("Team1: " + team1.getName() + " Initial Strength: " + team1.getTeamStrength() + " Random Factor (" + keyTeam1 + "): " + randomFactorTeam1.get(keyTeam1) + " Final Strength: " + team1Strength);
-        gameResult.setTeam2InitialStrength("Team2: " + team2.getName() + " Initial Strength: " + team2.getTeamStrength() + " Random Factor (" + keyTeam2 + "): " + randomFactorTeam2.get(keyTeam2) + " Final Strength: " + team2Strength);
-        gameResult.setTeam1FinalStrength("Team1: " + team1.getName() + " Strength after match: " + team1.getTeamStrength());
-        gameResult.setTeam2FinalStrength("Team2: " + team2.getName() + " Strength after match: " + team2.getTeamStrength());
+        gameProgression.setResult(Map.of(result, winningTeam));
 
-        return gameResult;
+        gameProgression.setTeam1InitialStrength("Team1: " + team1.getName() + " Initial Strength: " + team1.getTeamStrength() + " Random Factor (" + keyTeam1 + "): " + randomFactorTeam1.get(keyTeam1) + " Final Strength: " + team1Strength);
+        gameProgression.setTeam2InitialStrength("Team2: " + team2.getName() + " Initial Strength: " + team2.getTeamStrength() + " Random Factor (" + keyTeam2 + "): " + randomFactorTeam2.get(keyTeam2) + " Final Strength: " + team2Strength);
+
+        gameProgression.setTeam1FinalStrength("Team1: " + team1.getName() + " Strength after match: " + team1.getTeamStrength());
+        gameProgression.setTeam2FinalStrength("Team2: " + team2.getName() + " Strength after match: " + team2.getTeamStrength());
+
+        return gameProgression;
     }
 
     private  Map<String,Integer> getRandomFactor() {
@@ -62,14 +67,32 @@ public class GameResultGenerator {
         return Map.of(randomKey, randomFactor);
     }
 
-    public  void updateStrengths(FootballClub team1, FootballClub team2, String result) {
-        if (result.equals(team1.getName() + " wins")) {
-            team1.setTeamStrength(team1.getTeamStrength() + 1); // Increase team1's strength
-            team2.setTeamStrength(Math.max(0, team2.getTeamStrength() - 1)); // Decrease team2's strength, but not below 0
-        } else if (result.equals(team2.getName() + " wins")) {
-            team2.setTeamStrength(team2.getTeamStrength() + 1); // Increase team2's strength
-            team1.setTeamStrength(Math.max(0, team1.getTeamStrength() - 1)); // Decrease team1's strength, but not below 0
-        }
+    public Map<String, String> generateGoalTimes(FootballClub team1, FootballClub team2, int team1Goals, int team2Goals) {
+        Map<String, String> goalTimes = new HashMap<>();
+        goalTimes.put(team1.getName(), generateRandomTimes(team1Goals));
+        goalTimes.put(team2.getName(), generateRandomTimes(team2Goals));
+        return goalTimes;
     }
+
+    private String generateRandomTimes(int numberOfGoals) {
+        List<Integer> times = new ArrayList<>();
+        for (int i = 0; i < numberOfGoals; i++) {
+            times.add(RANDOM.nextInt(MATCH_LENGTH) + 1); // +1 to avoid 0 minute
+        }
+        Collections.sort(times); // Sort the times in ascending order
+        return times.stream().map(String::valueOf).collect(Collectors.joining(","));
+    }
+
+
+
+//    public  void updateStrengths(FootballClub team1, FootballClub team2, String result) {
+//        if (result.equals(team1.getName() + " wins")) {
+//            team1.setTeamStrength(team1.getTeamStrength() + 1); // Increase team1's strength
+//            team2.setTeamStrength(Math.max(0, team2.getTeamStrength() - 1)); // Decrease team2's strength, but not below 0
+//        } else if (result.equals(team2.getName() + " wins")) {
+//            team2.setTeamStrength(team2.getTeamStrength() + 1); // Increase team2's strength
+//            team1.setTeamStrength(Math.max(0, team1.getTeamStrength() - 1)); // Decrease team1's strength, but not below 0
+//        }
+//    }
 
 }

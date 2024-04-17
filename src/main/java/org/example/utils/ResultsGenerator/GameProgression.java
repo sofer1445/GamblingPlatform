@@ -1,15 +1,21 @@
 package org.example.utils.ResultsGenerator;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
-public class GameResult {
+public class GameProgression {
+    private int id;
     private Map<String,String> result;
     private String team1InitialStrength;
     private String team2InitialStrength;
     private String team1FinalStrength;
     private String team2FinalStrength;
+    private Map<String, List<Integer>> goalTimes;
 
-    public GameResult(Map<String,String> result, String team1InitialStrength, String team2InitialStrength, String team1FinalStrength, String team2FinalStrength) {
+    public GameProgression(Map<String,String> result, String team1InitialStrength, String team2InitialStrength, String team1FinalStrength, String team2FinalStrength) {
         this.result = result;
         this.team1InitialStrength = team1InitialStrength;
         this.team2InitialStrength = team2InitialStrength;
@@ -17,10 +23,16 @@ public class GameResult {
         this.team2FinalStrength = team2FinalStrength;
     }
 
-    public GameResult() {
+    public GameProgression() {
     }
 
+    public int getId() {
+        return id;
+    }
 
+    public void setId(int id) {
+        this.id = id;
+    }
 
     public String getTeam1InitialStrength() {
         return team1InitialStrength;
@@ -70,6 +82,7 @@ public class GameResult {
                 "team2 Initial Strength='" + team2InitialStrength + '\n' +
                 "team1 Final Strength='" + team1FinalStrength + '\n' +
                 "team2 Final Strength='" + team2FinalStrength + '\n' +
+                "goalTimes=" + goalTimes +
                 '}';
     }
 
@@ -84,5 +97,32 @@ public class GameResult {
         } else {
             return "Draw";
         }
+    }
+
+
+    public void setGoalTimes(Map<String, String> goalTimes) {
+        this.goalTimes = goalTimes.entrySet().stream()
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        e -> {
+                            if (e.getValue() == null || e.getValue().isEmpty()) {
+                                return new ArrayList<Integer>();
+                            } else {
+                                return Arrays.stream(e.getValue().split(","))
+                                        .map(Integer::parseInt)
+                                        .collect(Collectors.toList());
+                            }
+                        }
+                ));
+    }
+
+    public Map<String, String> getGoalTimes() {
+        return goalTimes.entrySet().stream()
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        e -> e.getValue().stream()
+                                .map(String::valueOf)
+                                .collect(Collectors.joining(","))
+                ));
     }
 }

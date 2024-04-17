@@ -31,11 +31,15 @@ public class BettingSystem {
         double homeTeamAveragePoints = calculateAveragePoints(match.getHomeTeam());
         double awayTeamAveragePoints = calculateAveragePoints(match.getAwayTeam());
 
-        ratios.put("1", calculateOdds(homeWinProbability) * homeTeamAveragePoints);
-        ratios.put("X", calculateOdds(drawProbability));
-        ratios.put("2", calculateOdds(awayWinProbability) * awayTeamAveragePoints);
+        ratios.put("1", roundToTwoDecimalPlaces(calculateOdds(homeWinProbability) * homeTeamAveragePoints));
+        ratios.put("X", roundToTwoDecimalPlaces(calculateOdds(drawProbability)));
+        ratios.put("2", roundToTwoDecimalPlaces(calculateOdds(awayWinProbability) * awayTeamAveragePoints));
 
         return ratios;
+    }
+
+    private double roundToTwoDecimalPlaces(double value) {
+        return Math.round(value * 100.0) / 100.0;
     }
 
     private double calculateTeamStrength(FootballClub team) {
