@@ -7,15 +7,7 @@ public class User {
     private String password;
     private String mail ;
     private String secret;
-
-
-    public User(int id, String username, String password, String mail, String secret) {
-        this.id = id;
-        this.username = username;
-        this.password = password;
-        this.mail = mail;
-        this.secret = secret;
-    }
+    private int coins;
 
 //    public User(int id, String username, String password) {
 //        this(username, password);
@@ -27,6 +19,7 @@ public class User {
         this.password = password;
         this.mail = mail;
         this.secret = createSecret();
+        this.coins = 100;
     }
 
     public User(){
@@ -80,6 +73,14 @@ public class User {
             secret += (char) (Math.random() * 26 + 97);
         }
         return secret;
+    }
+
+    public int getCoins() {
+        return coins;
+    }
+
+    public void setCoins(int coins) {
+        this.coins = coins;
     }
 
 }

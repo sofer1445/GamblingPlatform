@@ -105,6 +105,29 @@ public class GeneralController {
         return success;
     }
 
+    @RequestMapping(value = "delete-user")
+    public boolean deleteUser(String secretNewUser) {
+        if (secretNewUser != null && !secretNewUser.isEmpty()) {
+            User user = persist.getUserBySecret(secretNewUser);
+            if (user != null) {
+                return persist.deleteUser(user);
+            }
+        }
+        return false;
+    }
+
+    @RequestMapping(value = "currency-Update")
+    public boolean currencyUpdate(String secretNewUser, int coins) {
+        if (secretNewUser != null && !secretNewUser.isEmpty()) {
+            User user = persist.getUserBySecret(secretNewUser);
+            if (user != null) {
+                user.setCoins(coins);
+                return persist.currencyUpdate(user, coins);
+            }
+        }
+        return false;
+    }
+
     @RequestMapping(value = "get-clubs")
     public List<FootballClub> getClubs() {
         return persist.getClubs();

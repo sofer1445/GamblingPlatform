@@ -135,6 +135,29 @@ public class Persist {
         return success;
     }
 
+    public boolean deleteUser(User user) {
+        try {
+            Session session = sessionFactory.getCurrentSession();
+            session.delete(user);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public boolean currencyUpdate(User user, int amount) { // amount can be negative
+        try {
+            Session session = sessionFactory.getCurrentSession();
+            user.setCoins(user.getCoins() + amount);
+            session.update(user);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
     public void createClub(FootballClub club) {
         try {
             Session session = sessionFactory.getCurrentSession();
@@ -162,7 +185,7 @@ public class Persist {
         clubNames.add("Hapoel Tel Aviv");
         clubNames.add("Hapoel Jerusalem");
         clubNames.add("Maccabi Netanya");
-
+        // צריך להוציא את כל הקבוצות לfinalים
         int i = 1;
         for (String clubName : clubNames) {
             FootballClub club = new FootballClub();
@@ -175,6 +198,7 @@ public class Persist {
             }
         }
     }
+
     public void updateClub(FootballClub club) {
         try {
             Session session = sessionFactory.getCurrentSession();
@@ -185,40 +209,40 @@ public class Persist {
     }
 
     public void updateClubs(Match game) {
-            try {
-                FootballClub homeTeam = game.getHomeTeam();
-                FootballClub awayTeam = game.getAwayTeam();
-                String result = game.getResult();
-                String[] resultArray = result.split("-");
-                int homeGoals = Integer.parseInt(resultArray[0]);
-                int awayGoals = Integer.parseInt(resultArray[1]);
-                homeTeam.setGoalsScored(homeTeam.getGoalsScored() + homeGoals);
-                homeTeam.setGoalsConceded(homeTeam.getGoalsConceded() + awayGoals);
-                awayTeam.setGoalsScored(awayTeam.getGoalsScored() + awayGoals);
-                awayTeam.setGoalsConceded(awayTeam.getGoalsConceded() + homeGoals);
-                homeTeam.setMatchesPlayed(homeTeam.getMatchesPlayed() + 1);
-                awayTeam.setMatchesPlayed(awayTeam.getMatchesPlayed() + 1);
-                if (homeGoals > awayGoals) {
-                    homeTeam.setWins(homeTeam.getWins() + 1);
-                    awayTeam.setLosses(awayTeam.getLosses() + 1);
-                    homeTeam.setPoints(homeTeam.getPoints() + 3);
-                } else if (homeGoals < awayGoals) {
-                    awayTeam.setWins(awayTeam.getWins() + 1);
-                    homeTeam.setLosses(homeTeam.getLosses() + 1);
-                    awayTeam.setPoints(awayTeam.getPoints() + 3);
-                } else {
-                    homeTeam.setDraws(homeTeam.getDraws() + 1);
-                    awayTeam.setDraws(awayTeam.getDraws() + 1);
-                    homeTeam.setPoints(homeTeam.getPoints() + 1);
-                    awayTeam.setPoints(awayTeam.getPoints() + 1);
-                }
-                updateClub(homeTeam);
-                updateClub(awayTeam);
-
-            } catch (Exception e) {
-                e.printStackTrace();
+        try {
+            FootballClub homeTeam = game.getHomeTeam();
+            FootballClub awayTeam = game.getAwayTeam();
+            String result = game.getResult();
+            String[] resultArray = result.split("-");
+            int homeGoals = Integer.parseInt(resultArray[0]);
+            int awayGoals = Integer.parseInt(resultArray[1]);
+            homeTeam.setGoalsScored(homeTeam.getGoalsScored() + homeGoals);
+            homeTeam.setGoalsConceded(homeTeam.getGoalsConceded() + awayGoals);
+            awayTeam.setGoalsScored(awayTeam.getGoalsScored() + awayGoals);
+            awayTeam.setGoalsConceded(awayTeam.getGoalsConceded() + homeGoals);
+            homeTeam.setMatchesPlayed(homeTeam.getMatchesPlayed() + 1);
+            awayTeam.setMatchesPlayed(awayTeam.getMatchesPlayed() + 1);
+            if (homeGoals > awayGoals) {
+                homeTeam.setWins(homeTeam.getWins() + 1);
+                awayTeam.setLosses(awayTeam.getLosses() + 1);
+                homeTeam.setPoints(homeTeam.getPoints() + 3);
+            } else if (homeGoals < awayGoals) {
+                awayTeam.setWins(awayTeam.getWins() + 1);
+                homeTeam.setLosses(homeTeam.getLosses() + 1);
+                awayTeam.setPoints(awayTeam.getPoints() + 3);
+            } else {
+                homeTeam.setDraws(homeTeam.getDraws() + 1);
+                awayTeam.setDraws(awayTeam.getDraws() + 1);
+                homeTeam.setPoints(homeTeam.getPoints() + 1);
+                awayTeam.setPoints(awayTeam.getPoints() + 1);
             }
+            updateClub(homeTeam);
+            updateClub(awayTeam);
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+    }
 
     public List<FootballClub> getClubs() {
         List<FootballClub> clubs = null;
@@ -306,7 +330,8 @@ public class Persist {
         }
         return bets;
     }
-    public void updateDraw(Bet bet , boolean draw) {
+
+    public void updateDraw(Bet bet, boolean draw) {
         try {
             Session session = sessionFactory.getCurrentSession();
             bet.setDraw(draw);
@@ -316,7 +341,7 @@ public class Persist {
         }
     }
 
-    public void updateStatus(Bet bet , boolean status) {
+    public void updateStatus(Bet bet, boolean status) {
         try {
             Session session = sessionFactory.getCurrentSession();
             bet.setStatus(status);
@@ -411,6 +436,18 @@ public class Persist {
             List<Match> matches = session.createQuery("FROM Match").getResultList();
             for (Match match : matches) {
                 System.out.println(match);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void getAllBets() {
+        try {
+            Session session = sessionFactory.getCurrentSession();
+            List<Bet> bets = session.createQuery("FROM Bet").getResultList();
+            for (Bet bet : bets) {
+                System.out.println(bet);
             }
         } catch (Exception e) {
             e.printStackTrace();

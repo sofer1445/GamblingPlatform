@@ -10,6 +10,7 @@
         <property name="password" type="string" column="password"/>
         <property name="mail" type="string" column="mail"/>
         <property name="secret" type="string" column="secret"/>
+        <property name="coins" type="int" column="coins"/>
     </class>
 
     <class name="org.example.entities.FootballClub" table="footballClubs" lazy="false">
