@@ -32,13 +32,13 @@ public class GeneralController {
 
 
     @RequestMapping(value = "/login", method = {RequestMethod.GET, RequestMethod.POST})
-    public BasicResponse login(String username, String password) {
+    public BasicResponse login(String mail, String password) {
         BasicResponse basicResponse = null;
         boolean success = false;
         Integer errorCode = null;
-        if (username != null && username.length() > 0) {
+        if (mail != null && mail.length() > 0) {
             if (password != null && password.length() > 0) {
-                User user = persist.login(username, password);
+                User user = persist.login(mail, password);
                 if (user != null) {
                     basicResponse = new LoginResponse(true, errorCode, user.getId(), user.getSecret());
                 } else {
@@ -56,7 +56,7 @@ public class GeneralController {
         return basicResponse;
     }
 
-    @RequestMapping(value = "add-user")
+    @RequestMapping(value = "sign-up")
     public boolean addUser(String username, String password, String mail) {
         if (username != null && !username.isEmpty() && password != null && !password.isEmpty() && mail != null && !mail.isEmpty()) {
             if (EmailValidator.isValid(mail) && PasswordValidator.isValid(password)) {
