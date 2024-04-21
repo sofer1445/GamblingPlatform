@@ -5,6 +5,7 @@ import org.example.entities.Match;
 import org.example.entities.User;
 import org.example.responses.BasicResponse;
 import org.example.responses.LoginResponse;
+import org.example.utils.Errors;
 import org.example.utils.Persist;
 import org.example.entities.FootballClub;
 import org.example.utils.ResultsGenerator.GameProgression;
@@ -57,19 +58,30 @@ public class GeneralController {
     }
 
     @RequestMapping(value = "sign-up")
-    public boolean addUser(String username, String password, String mail) {
-        if (username != null && !username.isEmpty() && password != null && !password.isEmpty() && mail != null && !mail.isEmpty()) {
-            if (EmailValidator.isValid(mail) && PasswordValidator.isValid(password)) {
-                User existingUserByUsername = persist.getUserByUsername(username);
-                User existingUserByMail = persist.getUserByMail(mail);
-                if (existingUserByUsername == null && existingUserByMail == null) {
-                    User user = new User(username, password, mail);
-                    persist.addUser(user);
-                    return true;
-                }
-            }
+    public int addUser(String username, String password, String mail) {
+        if (username == null || username.isEmpty()) {
+            return ERROR_NO_SUCH_USERNAME;
         }
-        return false;
+        if (password == null || password.isEmpty()) {
+            return ERROR_SIGN_UP_PASSWORDS_DONT_MATCH ;
+        }
+        if (mail == null || mail.isEmpty()) {
+            return ERROR_NO_SUCH_MAIL;
+        }
+        if (EmailValidator.isValid(mail) && PasswordValidator.isValid(password)) {
+            User existingUserByUsername = persist.getUserByUsername(username);
+            User existingUserByMail = persist.getUserByMail(mail);
+            if (existingUserByUsername != null) {
+                return ERROR_SIGN_UP_USERNAME_TAKEN;
+            }
+            if (existingUserByMail != null) {
+                return ERROR_MAIL_TAKEN;
+            }
+            User user = new User(username, password, mail);
+            persist.addUser(user);
+            return 0; // 0 can be considered as success
+        }
+        return ERROR_INVALID_EMAIL_OR_PASSWORD;
     }
 
     @RequestMapping(value = "edit-user")
