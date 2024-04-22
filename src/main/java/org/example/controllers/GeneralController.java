@@ -34,6 +34,10 @@ public class GeneralController {
 
     @RequestMapping(value = "/login", method = {RequestMethod.GET, RequestMethod.POST})
     public BasicResponse login(String mail, String password) {
+        if(!EmailValidator.isValid(mail)){
+            return new BasicResponse(false, ERROR_INVALID_EMAIL_OR_PASSWORD);
+        }
+
         BasicResponse basicResponse = null;
         boolean success = false;
         Integer errorCode = null;
