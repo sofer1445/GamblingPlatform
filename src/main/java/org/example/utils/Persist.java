@@ -53,20 +53,19 @@ public class Persist {
 
 
     public User login(String mail, String password) {
-        User user = null;
-        if (mail == null || password == null) {
-            return null;
-        }
         try {
             Session session = sessionFactory.getCurrentSession();
-            Query query = session.createQuery("FROM User WHERE mail = :mail AND password = :password");
-            query.setParameter("mail", mail);
-            query.setParameter("password", password);
-            user = (User) query.getSingleResult();
+            Optional<User> user = session.createQuery("FROM User WHERE mail = :mail AND password = :password", User.class)
+                    .setParameter("mail", mail)
+                    .setParameter("password", password)
+                    .uniqueResultOptional();
+            if (user.isPresent()) {
+                return user.get();
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return user;
+        return null;
     }
 
     public boolean checkIfUsernameAvailable(String username) {

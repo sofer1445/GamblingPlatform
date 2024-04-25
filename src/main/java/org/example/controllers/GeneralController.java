@@ -97,6 +97,7 @@ public class GeneralController {
                 User newUser = user;
                 if (username != null && !username.isEmpty()) {
                     newUser.setUsername(username);
+
                 } else {
                     return success;
                 }
@@ -115,7 +116,7 @@ public class GeneralController {
                     }
                 }
 
-                return persist.editUser(newUser);
+                success = persist.editUser(newUser);
             }
         }
         return success;
