@@ -150,8 +150,20 @@ public class GeneralController {
         return persist.getClubs();
     }
 
+    @RequestMapping(value = "get-name-clubs")
+    public List<String> getNameClubs() {
+        List<FootballClub> clubs = persist.getClubs();
+        List<String> nameClubs = new ArrayList<>();
+        for (FootballClub club : clubs) {
+            nameClubs.add(club.getName());
+        }
+        return nameClubs;
+    }
+
+
+
     @RequestMapping(value = "generate-result")
-    public GameProgression generateResult(String secretNewUser, String team1Name, String team2Name) {
+    public Match generateResult(String secretNewUser, String team1Name, String team2Name) {
         if (secretNewUser != null && !secretNewUser.isEmpty()) {
             User user = persist.getUserBySecret(secretNewUser);
             FootballClub team1 = persist.getClubByName(team1Name);
@@ -162,7 +174,10 @@ public class GeneralController {
                 GameProgression resultOfMatch = gameResultGenerator.generateResult(team1, team2);
                 Match match = new Match(team1, team2, resultOfMatch.getResult().keySet().iterator().next());
                 this.persist.createMatch(match);
-                return resultOfMatch;
+                match.setGameProgression(resultOfMatch);
+                persist.updateClubs(match);
+                persist.createGameProgression(resultOfMatch);
+                return match;
             }
         }
         return null;
@@ -278,6 +293,11 @@ public class GeneralController {
     @RequestMapping(value = "get-bets")
     public List<Bet> getBets() {
         return persist.getBets();
+    }
+
+    @RequestMapping(value = "get-bets-by-secret")
+    public List<Bet> getBetsBySecret(String secretNewUser) {
+        return persist.getBetsBySecret(secretNewUser);
     }
 
     @RequestMapping(value = "check-bet")

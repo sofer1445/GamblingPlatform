@@ -454,6 +454,18 @@ public class Persist {
     }
 
 
+    public List<Bet> getBetsBySecret(String secretNewUser) {
+        try {
+            Session session = sessionFactory.getCurrentSession();
+            return session.createQuery("FROM Bet WHERE secret = :secret", Bet.class)
+                    .setParameter("secret", secretNewUser)
+                    .getResultList();
+        } catch (Exception e) {
+            e.printStackTrace();
+
+        }
+        return null;
+    }
 }
 
 
