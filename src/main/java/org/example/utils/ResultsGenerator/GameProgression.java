@@ -1,5 +1,7 @@
 package org.example.utils.ResultsGenerator;
 
+import org.springframework.web.bind.annotation.RequestMapping;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -115,6 +117,7 @@ public class GameProgression {
                         }
                 ));
     }
+
 
     public Map<String, String> getGoalTimes() {
         return goalTimes.entrySet().stream()
