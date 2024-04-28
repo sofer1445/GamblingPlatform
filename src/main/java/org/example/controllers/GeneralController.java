@@ -14,6 +14,7 @@ import org.example.utils.Validator.PasswordValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.example.utils.ResultsGenerator.GameResultGenerator;
 import org.example.utils.ResultsGenerator.BettingSystem;
@@ -237,6 +238,17 @@ public class GeneralController {
     public GameProgression getGameResultObject(int idGameProgression) {
         return persist.getGameProgressionById(idGameProgression);
     }
+
+    @RequestMapping(value = "get-history-matches")
+    public List<Match> getHistoryMatches(@RequestParam("fromGame") int fromGame, @RequestParam("toGame") int toGame) {
+        return persist.getHistoryMatches(fromGame, toGame);
+    }
+
+    @RequestMapping(value = "get-all-matches")
+    public List<Match> getAllMatches() {
+        return persist.getAllMatches();
+    }
+
 
     @RequestMapping(value = "add-bet-result")
     public boolean addBet(String secretNewUser, int idMatch, String betOnResult) {

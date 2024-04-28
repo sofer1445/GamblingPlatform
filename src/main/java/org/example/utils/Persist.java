@@ -383,6 +383,7 @@ public class Persist {
         return null;
     }
 
+
     public GameProgression getGameProgressionById(int idGameProgression) {
         try {
             Session session = sessionFactory.getCurrentSession();
@@ -429,16 +430,27 @@ public class Persist {
         return null;
     }
 
-    public void getAllMatches() {
+    public List<Match> getHistoryMatches(int fromGame, int toGame) {
         try {
             Session session = sessionFactory.getCurrentSession();
-            List<Match> matches = session.createQuery("FROM Match").getResultList();
-            for (Match match : matches) {
-                System.out.println(match);
-            }
+            return session.createQuery("FROM Match WHERE idMatch >= :fromGame AND idMatch <= :toGame", Match.class)
+                    .setParameter("fromGame", fromGame)
+                    .setParameter("toGame", toGame)
+                    .getResultList();
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return null;
+    }
+
+    public List<Match> getAllMatches() {
+        try {
+            Session session = sessionFactory.getCurrentSession();
+            return session.createQuery("FROM Match", Match.class).getResultList();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public void getAllBets() {
@@ -466,6 +478,8 @@ public class Persist {
         }
         return null;
     }
+
+
 }
 
 
