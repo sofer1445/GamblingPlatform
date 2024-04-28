@@ -1,5 +1,6 @@
 package org.example.controllers;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.example.entities.Bet;
 import org.example.entities.Match;
 import org.example.entities.User;
@@ -12,30 +13,37 @@ import org.example.utils.ResultsGenerator.GameProgression;
 import org.example.utils.Validator.EmailValidator;
 import org.example.utils.Validator.PasswordValidator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.example.utils.ResultsGenerator.GameResultGenerator;
 import org.example.utils.ResultsGenerator.BettingSystem;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import static org.example.utils.Errors.*;
 
+
+
 @RestController
 public class GeneralController {
-
+    public List<SseEmitter> emitters = new CopyOnWriteArrayList<>();
     @Autowired
     private Persist persist;
     @Autowired
     private BettingSystem bettingSystem;
+//    private ArrayUtils emitters;
 //    private List<User> users = persist.getUsers();
 
 
     @RequestMapping(value = "/login", method = {RequestMethod.GET, RequestMethod.POST})
     public BasicResponse login(String mail, String password) {
-        if(!EmailValidator.isValid(mail)){
+        if (!EmailValidator.isValid(mail)) {
             return new BasicResponse(false, ERROR_INVALID_EMAIL_OR_PASSWORD);
         }
 
@@ -68,7 +76,7 @@ public class GeneralController {
             return ERROR_NO_SUCH_USERNAME;
         }
         if (password == null || password.isEmpty()) {
-            return ERROR_SIGN_UP_PASSWORDS_DONT_MATCH ;
+            return ERROR_SIGN_UP_PASSWORDS_DONT_MATCH;
         }
         if (mail == null || mail.isEmpty()) {
             return ERROR_NO_SUCH_MAIL;
@@ -162,9 +170,8 @@ public class GeneralController {
     }
 
 
-
     @RequestMapping(value = "generate-result")
-    public Match generateResult(String secretNewUser, String team1Name, String team2Name) {
+    public Match generateResult(String team1Name, String team2Name, String secretNewUser) {
         if (secretNewUser != null && !secretNewUser.isEmpty()) {
             User user = persist.getUserBySecret(secretNewUser);
             FootballClub team1 = persist.getClubByName(team1Name);
@@ -345,6 +352,10 @@ public class GeneralController {
     }
 }
 
+
+
+
+
 //  @GetMapping(value = "/subscribe")
 //    public SseEmitter subscribe(String secret) {
 //        try{
@@ -380,3 +391,4 @@ public class GeneralController {
 //            }
 //        }).start();
 //    }
+
