@@ -141,6 +141,16 @@ public class GeneralController {
         }
         return false;
     }
+    @RequestMapping(value = "get-coins-from-user")
+    public int getCoinsFromUser(String secretNewUser) {
+        if (secretNewUser != null && !secretNewUser.isEmpty()) {
+            User user = persist.getUserBySecret(secretNewUser);
+            if (user != null) {
+                return user.getCoins();
+            }
+        }
+        return 0;
+    }
 
     @RequestMapping(value = "currency-Update")
     public boolean currencyUpdate(String secretNewUser, int coins) {
@@ -281,7 +291,7 @@ public class GeneralController {
     }
 
     @RequestMapping(value = "add-bet-win")
-    public boolean addBetWin(String secretNewUser, int idMatch, String betOnWin) {
+    public boolean addBetWin(String secretNewUser, Integer idMatch, String betOnWin) {
         if (secretNewUser == null || secretNewUser.isEmpty() || idMatch == 0 || betOnWin == null || betOnWin.isEmpty()) {
             return false;
         }
@@ -302,6 +312,11 @@ public class GeneralController {
         }
 
         return false;
+    }
+
+    @RequestMapping(value = "last-id-match")
+    public int lastIdMatch() {
+        return persist.lastIdMatch();
     }
 
     @RequestMapping(value = "get-matches")

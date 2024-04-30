@@ -122,6 +122,19 @@ public class Persist {
         return users;
     }
 
+    public int getCoinsUserBySecret(String secret) {
+        try {
+            Session session = sessionFactory.getCurrentSession();
+            return session.createQuery("SELECT coins FROM User WHERE secret = :secret", Integer.class)
+                    .setParameter("secret", secret)
+                    .uniqueResult();
+        }catch (Exception e) {
+            e.printStackTrace();
+
+        }
+        return 0;
+    }
+
     public boolean editUser(User user) {
         boolean success = false;
         try {
@@ -317,6 +330,16 @@ public class Persist {
             e.printStackTrace();
         }
         return matches;
+    }
+
+    public int lastIdMatch() {
+        try {
+            Session session = sessionFactory.getCurrentSession();
+            return session.createQuery("SELECT MAX(idMatch) FROM Match", Integer.class).uniqueResult();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
     }
 
     public List<Bet> getBets() {
