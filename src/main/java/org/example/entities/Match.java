@@ -15,7 +15,12 @@ public class Match {
         this.awayTeam = awayTeam;
         this.result = result;
     }
-    public Match() {
+    public Match(FootballClub homeTeam, FootballClub awayTeam) {
+        this.homeTeam = homeTeam;
+        this.awayTeam = awayTeam;
+    }
+    public Match(){
+
     }
 
     public FootballClub getHomeTeam() {

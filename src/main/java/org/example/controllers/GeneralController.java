@@ -350,6 +350,20 @@ public class GeneralController {
         Match match = persist.getMatchById(idMatch);
         return bettingSystem.ratioCalculation(match);
     }
+
+    @RequestMapping(value = "get-ratio-game" )
+    public Map<String, Double> getRatioGame(String team1Name, String team2Name) {
+        FootballClub team1 = persist.getClubByName(team1Name);
+        FootballClub team2 = persist.getClubByName(team2Name);
+
+        if (team1 == null || team2 == null) {
+            throw new IllegalArgumentException("One or both team names are invalid.");
+        }
+
+        Match match = new Match(team1, team2);
+        Map<String, Double> ratios = bettingSystem.ratioCalculation(match);
+        return ratios;
+    }
 }
 
 
