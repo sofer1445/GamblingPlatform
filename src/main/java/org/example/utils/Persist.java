@@ -303,6 +303,29 @@ public class Persist {
         }
     }
 
+    public void updateMatch(Match match) {
+        try {
+            Session session = sessionFactory.getCurrentSession();
+            session.update(match);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public Match getMatchByTeamsAndSecret(String team1, String team2, String secret) {
+        try {
+            Session session = sessionFactory.getCurrentSession();
+            return session.createQuery("FROM Match WHERE homeTeam = :team1 AND awayTeam = :team2 AND secret = :secret", Match.class)
+                    .setParameter("team1", team1)
+                    .setParameter("team2", team2)
+                    .setParameter("secret", secret)
+                    .uniqueResult();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public void createGameProgression(GameProgression gameProgression) {
         try {
             Session session = sessionFactory.getCurrentSession();

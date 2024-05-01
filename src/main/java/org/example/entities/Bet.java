@@ -17,7 +17,9 @@ public class Bet {
         this.predictedResult = predictedResult;
         this.status = false;
     }
-    public Bet(){
+    public Bet(String secretUser, FootballClub predictedWinner){
+        this.secretUser = secretUser;
+        this.predictedWinner = predictedWinner;
 
     }
     public Bet(String secretUser, Match match, boolean draw) {
@@ -32,6 +34,12 @@ public class Bet {
         this.secretUser = secretUser;
         this.match = match;
         this.predictedWinner = predictedWinner;
+    }
+
+    public Bet(String secret, boolean draw) {
+        this.secretUser = secret;
+        this.draw = draw;
+
     }
 
     public String getSecretUser() {

@@ -9,6 +9,7 @@ public class Match {
     private FootballClub awayTeam;
     private String result;
     private GameProgression gameProgression;
+    private String secretUser;
 
     public Match(FootballClub homeTeam, FootballClub awayTeam, String result) {
         this.homeTeam = homeTeam;
@@ -21,6 +22,12 @@ public class Match {
     }
     public Match(){
 
+    }
+    public Match(String secretUser, FootballClub homeTeam, FootballClub awayTeam, String result) {
+        this.secretUser = secretUser;
+        this.homeTeam = homeTeam;
+        this.awayTeam = awayTeam;
+        this.result = result;
     }
 
     public FootballClub getHomeTeam() {
@@ -53,6 +60,14 @@ public class Match {
 
     public void setGameProgression(GameProgression gameProgression) {
         this.gameProgression = gameProgression;
+    }
+
+    public String getSecretUser() {
+        return secretUser;
+    }
+
+    public void setSecretUser(String secretUser) {
+        this.secretUser = secretUser;
     }
 
 }

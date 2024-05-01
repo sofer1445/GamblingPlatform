@@ -44,6 +44,7 @@
         <id name="idMatch" type="int" column="idMatch">
             <generator class="native"/>
         </id>
+        <property name="secretUser" type="string" column="secretUser"/>
         <many-to-one name="homeTeam" class="org.example.entities.FootballClub" column="homeTeam"/>
         <many-to-one name="awayTeam" class="org.example.entities.FootballClub" column="awayTeam"/>
         <property name="result" type="string" column="result"/>

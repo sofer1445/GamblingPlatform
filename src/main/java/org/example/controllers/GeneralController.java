@@ -190,7 +190,7 @@ public class GeneralController {
             if (user != null && team1 != null && team2 != null) {
                 GameResultGenerator gameResultGenerator = new GameResultGenerator();
                 GameProgression resultOfMatch = gameResultGenerator.generateResult(team1, team2);
-                Match match = new Match(team1, team2, resultOfMatch.getResult().keySet().iterator().next());
+                Match match = new Match(secretNewUser,team1, team2, resultOfMatch.getResult().keySet().iterator().next());
                 this.persist.createMatch(match);
                 match.setGameProgression(resultOfMatch);
                 persist.updateClubs(match);
@@ -200,6 +200,54 @@ public class GeneralController {
         }
         return null;
     }
+
+//    @RequestMapping(value = "registration-unplayed-games")
+//    public int[] getIdGameUnplayed(String[] futureMatches, String secretNewUser) {
+//        if (secretNewUser != null && !secretNewUser.isEmpty()) {
+//            User user = persist.getUserBySecret(secretNewUser);
+//            int[] idMatches = new int[0];
+//            if (user != null) {
+//                for(String futureMatch : futureMatches) {
+//                    String[] teams = futureMatch.split(",");
+//                    FootballClub team1 = persist.getClubByName(teams[0]);
+//                    FootballClub team2 = persist.getClubByName(teams[1]);
+//                    if (team1 != null && team2 != null) {
+//                        Match match = new Match(team1, team2);
+//                        this.persist.createMatch(match);
+//                        idMatches = ArrayUtils.add(idMatches, match.getIdMatch());
+//                    }
+//                }
+//                return idMatches;
+//            }
+//        }
+//        return null;
+//    }
+
+//    @RequestMapping(value = "generate-results-for-future-matches")
+//    public List<Match> generateResultsForFutureMatches(int[] matchIds, String secretNewUser) {
+//        List<Match> updatedMatches = new ArrayList<>();
+//        if (secretNewUser != null && !secretNewUser.isEmpty()) {
+//            User user = persist.getUserBySecret(secretNewUser);
+//            if (user != null) {
+//                for (Integer matchId : matchIds) {
+//                    Match match = persist.getMatchById(matchId);
+//                    if (match != null) {
+//                        FootballClub team1 = match.getHomeTeam();
+//                        FootballClub team2 = match.getAwayTeam();
+//                        GameResultGenerator gameResultGenerator = new GameResultGenerator();
+//                        GameProgression resultOfMatch = gameResultGenerator.generateResult(team1, team2);
+//                        match.setResult(resultOfMatch.getResult().keySet().iterator().next());
+//                        match.setGameProgression(resultOfMatch);
+//                        persist.updateMatch(match);
+//                        persist.updateClubs(match);
+//                        persist.createGameProgression(resultOfMatch);
+//                        updatedMatches.add(match);
+//                    }
+//                }
+//            }
+//        }
+//        return updatedMatches;
+//    }
 
     @RequestMapping(value = "generate-full-round")
     public List<Match> generateFullRound(String secretNewUser) {
@@ -291,22 +339,22 @@ public class GeneralController {
     }
 
     @RequestMapping(value = "add-bet-win")
-    public boolean addBetWin(String secretNewUser, Integer idMatch, String betOnWin) {
-        if (secretNewUser == null || secretNewUser.isEmpty() || idMatch == 0 || betOnWin == null || betOnWin.isEmpty()) {
+    public boolean addBetWin(String secretNewUser, String betOnWin) {
+        if (secretNewUser == null || secretNewUser.isEmpty() || betOnWin == null || betOnWin.isEmpty()) {
             return false;
         }
-        Match newMatch = persist.getMatchById(idMatch);
+//        Match newMatch = persist.getMatchById(idMatch);
         User user = persist.getUserBySecret(secretNewUser);
         FootballClub team;
         if (user.getSecret().equals(secretNewUser)) {
             if (betOnWin.equals("draw")) {
                 boolean draw = true;
-                Bet bet = new Bet(user.getSecret(), newMatch, draw);
+                Bet bet = new Bet(user.getSecret(), draw);
                 this.persist.createBet(bet);
                 return true;
             }
             team = persist.getClubByName(betOnWin);
-            Bet bet = new Bet(user.getSecret(), newMatch, team);
+            Bet bet = new Bet(user.getSecret(), team);
             this.persist.createBet(bet);
             return true;
         }
@@ -335,11 +383,11 @@ public class GeneralController {
     }
 
     @RequestMapping(value = "check-bet")
-    public boolean checkBet(String secretNewUser, int idBet, int idMatch) {
+    public boolean checkBet(String secretNewUser, int idBet, String homeTeam, String awayTeam) {
         if (secretNewUser != null && !secretNewUser.isEmpty()) {
             User user = persist.getUserBySecret(secretNewUser);
             Bet bet = persist.getBetById(idBet);
-            Match match = persist.getMatchById(idMatch);
+            Match match = persist.getMatchByTeamsAndSecret(homeTeam, awayTeam, secretNewUser);
             GameProgression gameProgression = new GameProgression();
             gameProgression.setResult(Map.of(match.getResult(), match.getHomeTeam().getName()));
             String winningTeam = gameProgression.getWinningTeamName().toLowerCase(Locale.ROOT);
