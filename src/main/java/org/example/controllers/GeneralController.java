@@ -141,6 +141,16 @@ public class GeneralController {
         }
         return false;
     }
+
+    @RequestMapping(value = "get-user-by-secret")
+    public Map<String, String> getUserBySecret(String secretNewUser) {
+        User user = persist.getUserBySecret(secretNewUser); // קורא לפונקציה שמחזירה משתמש לפי סיסמא
+        return Map.of("username", user.getUsername(),
+                "password", user.getPassword(),
+                "mail", user.getMail(),
+                "coins", String.valueOf(user.getCoins()));
+    }
+
     @RequestMapping(value = "get-coins-from-user")
     public int getCoinsFromUser(String secretNewUser) {
         if (secretNewUser != null && !secretNewUser.isEmpty()) {
@@ -380,6 +390,7 @@ public class GeneralController {
     @RequestMapping(value = "get-bets-by-secret")
     public List<Bet> getBetsBySecret(String secretNewUser) {
         return persist.getBetsBySecret(secretNewUser);
+
     }
 
     @RequestMapping(value = "check-bet")
@@ -387,7 +398,12 @@ public class GeneralController {
         if (secretNewUser != null && !secretNewUser.isEmpty()) {
             User user = persist.getUserBySecret(secretNewUser);
             Bet bet = persist.getBetById(idBet);
-            Match match = persist.getMatchByTeamsAndSecret(homeTeam, awayTeam, secretNewUser);
+            List<Match> listMatchesOfUser = persist.getMatchesBySecret(secretNewUser); // שגיאות פה
+            Match match = listMatchesOfUser.stream()// גם פה לא הולך
+                    .filter(m -> m.getHomeTeam().getName().equals(homeTeam) && m.getAwayTeam().getName().equals(awayTeam))
+                    .sorted(Comparator.comparing(Match::getIdMatch).reversed())
+                    .findFirst()
+                    .orElse(null);
             GameProgression gameProgression = new GameProgression();
             gameProgression.setResult(Map.of(match.getResult(), match.getHomeTeam().getName()));
             String winningTeam = gameProgression.getWinningTeamName().toLowerCase(Locale.ROOT);

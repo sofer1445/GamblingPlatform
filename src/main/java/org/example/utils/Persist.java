@@ -312,14 +312,31 @@ public class Persist {
         }
     }
 
-    public Match getMatchByTeamsAndSecret(String team1, String team2, String secret) {
+    public List<Match> getMatchesBySecret(String secret) {
         try {
             Session session = sessionFactory.getCurrentSession();
-            return session.createQuery("FROM Match WHERE homeTeam = :team1 AND awayTeam = :team2 AND secret = :secret", Match.class)
+            return session.createQuery("FROM Match WHERE secretUser = :secret",
+                            Match.class)
+                    .setParameter("secret", secret)
+                    .getResultList();
+        } catch (Exception e) {
+            e.printStackTrace();
+
+        }
+        return null;
+    }
+
+    public Match getLastMatchByTeamsAndSecret(String team1, String team2, String secret) {
+        try {
+            Session session = sessionFactory.getCurrentSession();
+            return session.createQuery("FROM Match WHERE homeTeam = :team1 AND awayTeam = :team2 AND secret = :secret ORDER BY idMatch DESC",
+                    Match.class)
                     .setParameter("team1", team1)
                     .setParameter("team2", team2)
                     .setParameter("secret", secret)
+                    .setMaxResults(1)
                     .uniqueResult();
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -515,12 +532,12 @@ public class Persist {
     public List<Bet> getBetsBySecret(String secretNewUser) {
         try {
             Session session = sessionFactory.getCurrentSession();
-            return session.createQuery("FROM Bet WHERE secret = :secret", Bet.class)
-                    .setParameter("secret", secretNewUser)
+            return session.createQuery("FROM Bet WHERE secretUser = :secretNewUser AND  status = false", Bet.class)
+                    .setParameter("secretNewUser", secretNewUser)
                     .getResultList();
+
         } catch (Exception e) {
             e.printStackTrace();
-
         }
         return null;
     }

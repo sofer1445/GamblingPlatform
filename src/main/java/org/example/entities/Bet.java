@@ -28,6 +28,9 @@ public class Bet {
         this.draw = draw;
         this.status = false;
     }
+    public Bet(){
+
+    }
 
 
     public Bet(String secretUser, Match match, FootballClub predictedWinner) {
