@@ -98,9 +98,9 @@ public class GameProgression {
         int team1Goals = Integer.parseInt(resultArray[0]);
         int team2Goals = Integer.parseInt(resultArray[1]);
         if (team1Goals > team2Goals) {
-            return team1InitialStrength.split(":")[1].trim();
+            return team1InitialStrength.split(":")[0].trim();
         } else if (team1Goals < team2Goals) {
-            return team2InitialStrength.split(":")[1].trim();
+            return team2InitialStrength.split(":")[0].trim();
         } else {
             return "Draw";
         }
