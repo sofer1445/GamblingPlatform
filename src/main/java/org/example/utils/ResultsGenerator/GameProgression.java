@@ -93,14 +93,13 @@ public class GameProgression {
             // Handle the case where team strengths are not set
             return "Team strengths not set";
         }
-
         String[] resultArray = result.keySet().iterator().next().split("-");
         int team1Goals = Integer.parseInt(resultArray[0]);
         int team2Goals = Integer.parseInt(resultArray[1]);
         if (team1Goals > team2Goals) {
-            return team1InitialStrength.split(":")[0].trim();
+            return team1InitialStrength;
         } else if (team1Goals < team2Goals) {
-            return team2InitialStrength.split(":")[0].trim();
+            return team2InitialStrength;
         } else {
             return "Draw";
         }

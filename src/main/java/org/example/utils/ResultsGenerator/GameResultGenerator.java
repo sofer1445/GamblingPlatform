@@ -51,11 +51,11 @@ public class GameResultGenerator {
         }
         gameProgression.setResult(Map.of(result, winningTeam));
 
-        gameProgression.setTeam1InitialStrength("Team1: " + team1.getName() + " Initial Strength: " + team1.getTeamStrength() + " Random Factor (" + keyTeam1 + "): " + randomFactorTeam1.get(keyTeam1) + " Final Strength: " + team1Strength);
-        gameProgression.setTeam2InitialStrength("Team2: " + team2.getName() + " Initial Strength: " + team2.getTeamStrength() + " Random Factor (" + keyTeam2 + "): " + randomFactorTeam2.get(keyTeam2) + " Final Strength: " + team2Strength);
+        gameProgression.setTeam1InitialStrength("Team1: " + team1.getName() + ", Initial Strength: " + team1.getTeamStrength() + ", Random Factor (" + keyTeam1 + "): " + randomFactorTeam1.get(keyTeam1) + ", Final Strength: " + team1Strength);
+        gameProgression.setTeam2InitialStrength("Team2: " + team2.getName() + ", Initial Strength: " + team2.getTeamStrength() + ", Random Factor (" + keyTeam2 + "): " + randomFactorTeam2.get(keyTeam2) + ", Final Strength: " + team2Strength);
 
-        gameProgression.setTeam1FinalStrength("Team1: " + team1.getName() + " Strength after match: " + team1.getTeamStrength());
-        gameProgression.setTeam2FinalStrength("Team2: " + team2.getName() + " Strength after match: " + team2.getTeamStrength());
+        gameProgression.setTeam1FinalStrength("Team1: " + team1.getName() + ", Strength after match: " + team1.getTeamStrength());
+        gameProgression.setTeam2FinalStrength("Team2: " + team2.getName() + ", Strength after match: " + team2.getTeamStrength());
 
         return gameProgression;
     }

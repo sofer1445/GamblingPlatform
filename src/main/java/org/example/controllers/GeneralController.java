@@ -409,9 +409,9 @@ public class GeneralController {
             Match match = persist.getMatchByTeams(homeTeamClub, awayTeamClub, bet.getSecretUser());
             GameProgression gameProgression = new GameProgression();
             gameProgression.setResult(Map.of(match.getResult(), match.getHomeTeam().getName()));
-            gameProgression.setTeam1InitialStrength(String.valueOf(match.getHomeTeam().getTeamStrength()));
-            gameProgression.setTeam2InitialStrength(String.valueOf(match.getAwayTeam().getTeamStrength()));
-            String winningTeam = gameProgression.getWinningTeamName().toLowerCase(Locale.ROOT);
+            gameProgression.setTeam1InitialStrength(match.getHomeTeam().getName()); // homeTeam name
+            gameProgression.setTeam2InitialStrength(match.getAwayTeam().getName()); // awayTeam name
+            String winningTeam = gameProgression.getWinningTeamName();
             if (user != null && bet != null && user.getSecret().equals(bet.getSecretUser())) {
                 if (Objects.equals(winningTeam, "draw") && bet.isDraw()) {
                     persist.updateStatus(bet, true);
@@ -419,7 +419,9 @@ public class GeneralController {
 
                 }
                 if (match.getResult().equals(bet.getPredictedResult())
-                        || (bet.getPredictedWinner() != null && bet.getPredictedWinner().getName().equals(winningTeam))) {
+                        || bet.getPredictedWinner().getName().equals(winningTeam)
+                        || (bet.isDraw() && winningTeam.equals("draw")))
+                {
                     persist.updateStatus(bet, true);
                     return true;
                 }
