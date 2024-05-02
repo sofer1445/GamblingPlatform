@@ -31,9 +31,18 @@ public class BettingSystem {
         double homeTeamAveragePoints = calculateAveragePoints(match.getHomeTeam());
         double awayTeamAveragePoints = calculateAveragePoints(match.getAwayTeam());
 
-        ratios.put("1", roundToTwoDecimalPlaces(calculateOdds(homeWinProbability) * homeTeamAveragePoints));
-        ratios.put("X", roundToTwoDecimalPlaces(calculateOdds(drawProbability)));
-        ratios.put("2", roundToTwoDecimalPlaces(calculateOdds(awayWinProbability) * awayTeamAveragePoints));
+        double homeRatio = roundToTwoDecimalPlaces(calculateOdds(homeWinProbability) * homeTeamAveragePoints);
+        double drawRatio = roundToTwoDecimalPlaces(calculateOdds(drawProbability));
+        double awayRatio = roundToTwoDecimalPlaces(calculateOdds(awayWinProbability) * awayTeamAveragePoints);
+
+        // Check if ratios are 0 and if so, assign a random value between 1 and 4
+        homeRatio = homeRatio == 0 ? roundToTwoDecimalPlaces(Math.random() * 3 + 1) : homeRatio;
+        drawRatio = drawRatio == 0 ? roundToTwoDecimalPlaces(Math.random() * 3 + 1) : drawRatio;
+        awayRatio = awayRatio == 0 ? roundToTwoDecimalPlaces(Math.random() * 3 + 1) : awayRatio;
+
+        ratios.put("1", homeRatio);
+        ratios.put("X", drawRatio);
+        ratios.put("2", awayRatio);
 
         return ratios;
     }
@@ -62,7 +71,8 @@ public class BettingSystem {
             }
         }
 
-        return (double) totalGoals / matchCount;
+        double teamStrength = matchCount > 0 ? (double) totalGoals / matchCount : 0.5; // Default value if no matches have been played
+        return teamStrength;
     }
 
     private double calculateAveragePoints(FootballClub team) {
@@ -97,13 +107,12 @@ public class BettingSystem {
     }
 
     private double calculateOdds(double probability) {
-        // Ensure the odds are within a reasonable range
-        if (probability >= 0.95) {
+        // Ensure the odds are not less than 1.05
+        if (probability <= 0) {
             return 1.05;
-        } else if (probability <= 0.05) {
-            return 2.4;
         } else {
-            return 1 / probability;
+            double odds = 1 / probability;
+            return Math.max(odds, 1.05);
         }
     }
 }

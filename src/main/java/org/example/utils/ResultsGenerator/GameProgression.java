@@ -89,6 +89,11 @@ public class GameProgression {
     }
 
     public String getWinningTeamName() {
+        if (team1InitialStrength == null || team2InitialStrength == null) {
+            // Handle the case where team strengths are not set
+            return "Team strengths not set";
+        }
+
         String[] resultArray = result.keySet().iterator().next().split("-");
         int team1Goals = Integer.parseInt(resultArray[0]);
         int team2Goals = Integer.parseInt(resultArray[1]);

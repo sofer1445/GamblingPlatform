@@ -398,12 +398,15 @@ public class GeneralController {
         if (secretNewUser != null && !secretNewUser.isEmpty()) {
             User user = persist.getUserBySecret(secretNewUser);
             Bet bet = persist.getBetById(idBet);
-            List<Match> listMatchesOfUser = persist.getMatchesBySecret(secretNewUser); // שגיאות פה
-            Match match = listMatchesOfUser.stream()// גם פה לא הולך
-                    .filter(m -> m.getHomeTeam().getName().equals(homeTeam) && m.getAwayTeam().getName().equals(awayTeam))
-                    .sorted(Comparator.comparing(Match::getIdMatch).reversed())
-                    .findFirst()
-                    .orElse(null);
+//            List<Match> listMatchesOfUser = persist.getMatchesBySecret(secretNewUser); // שגיאות פה
+//            Match match = listMatchesOfUser.stream()// גם פה לא הולך
+//                    .filter(m -> m.getHomeTeam().getName().equals(homeTeam) && m.getAwayTeam().getName().equals(awayTeam))
+//                    .sorted(Comparator.comparing(Match::getIdMatch).reversed())
+//                    .findFirst()
+//                    .orElse(null);
+            FootballClub homeTeamClub = persist.getClubByName(homeTeam);
+            FootballClub awayTeamClub = persist.getClubByName(awayTeam);
+            Match match = persist.getMatchByTeams(homeTeamClub, awayTeamClub, bet.getSecretUser());
             GameProgression gameProgression = new GameProgression();
             gameProgression.setResult(Map.of(match.getResult(), match.getHomeTeam().getName()));
             String winningTeam = gameProgression.getWinningTeamName().toLowerCase(Locale.ROOT);
@@ -422,6 +425,18 @@ public class GeneralController {
             }
         }
         return false;
+    }
+
+    @RequestMapping(value = "delete-bets-user")
+    public boolean deleteBetUser(String secretNewUser) {
+        if (secretNewUser != null && !secretNewUser.isEmpty()) {
+            User user = persist.getUserBySecret(secretNewUser);
+            if (user != null) {
+                return persist.deleteBetOfUser(secretNewUser);
+            }
+        }
+        return false;
+
     }
 
     @RequestMapping(value = "get-ratio-calculation")

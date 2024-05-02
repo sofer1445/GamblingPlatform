@@ -326,22 +326,7 @@ public class Persist {
         return null;
     }
 
-    public Match getLastMatchByTeamsAndSecret(String team1, String team2, String secret) {
-        try {
-            Session session = sessionFactory.getCurrentSession();
-            return session.createQuery("FROM Match WHERE homeTeam = :team1 AND awayTeam = :team2 AND secret = :secret ORDER BY idMatch DESC",
-                    Match.class)
-                    .setParameter("team1", team1)
-                    .setParameter("team2", team2)
-                    .setParameter("secret", secret)
-                    .setMaxResults(1)
-                    .uniqueResult();
 
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
 
     public void createGameProgression(GameProgression gameProgression) {
         try {
@@ -542,7 +527,35 @@ public class Persist {
         return null;
     }
 
+    public boolean deleteBetOfUser(String secretUser) {
+        try {
+            Session session = sessionFactory.getCurrentSession();
+            session.createQuery("DELETE FROM Bet WHERE secretUser = :secretUser AND status = false")
+                    .setParameter("secretUser", secretUser)
+                    .executeUpdate();
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 
+
+    public Match getMatchByTeams(FootballClub homeTeam, FootballClub awayTeam, String secretUser) {
+        try {
+            Session session = sessionFactory.getCurrentSession();
+            Match match = session.createQuery("FROM Match WHERE homeTeam = :homeTeam AND awayTeam = :awayTeam AND secretUser = :secretUser ORDER BY idMatch DESC", Match.class)
+                    .setParameter("homeTeam", homeTeam)
+                    .setParameter("awayTeam", awayTeam)
+                    .setParameter("secretUser", secretUser)
+                    .setMaxResults(1)
+                    .uniqueResult();
+            return match;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }
 
 
