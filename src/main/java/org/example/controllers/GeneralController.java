@@ -398,12 +398,6 @@ public class GeneralController {
         if (secretNewUser != null && !secretNewUser.isEmpty()) {
             User user = persist.getUserBySecret(secretNewUser);
             Bet bet = persist.getBetById(idBet);
-//            List<Match> listMatchesOfUser = persist.getMatchesBySecret(secretNewUser); // שגיאות פה
-//            Match match = listMatchesOfUser.stream()// גם פה לא הולך
-//                    .filter(m -> m.getHomeTeam().getName().equals(homeTeam) && m.getAwayTeam().getName().equals(awayTeam))
-//                    .sorted(Comparator.comparing(Match::getIdMatch).reversed())
-//                    .findFirst()
-//                    .orElse(null);
             FootballClub homeTeamClub = persist.getClubByName(homeTeam);
             FootballClub awayTeamClub = persist.getClubByName(awayTeam);
             Match match = persist.getMatchByTeams(homeTeamClub, awayTeamClub, bet.getSecretUser());
@@ -413,13 +407,12 @@ public class GeneralController {
             gameProgression.setTeam2InitialStrength(match.getAwayTeam().getName()); // awayTeam name
             String winningTeam = gameProgression.getWinningTeamName();
             if (user != null && bet != null && user.getSecret().equals(bet.getSecretUser())) {
-                if (Objects.equals(winningTeam, "draw") && bet.isDraw()) {
+                if (Objects.equals(winningTeam, "Draw") && bet.isDraw()) {
                     persist.updateStatus(bet, true);
                     return true;
-
                 }
                 if (match.getResult().equals(bet.getPredictedResult())
-                        || bet.getPredictedWinner().getName().equals(winningTeam)
+                        || (bet.getPredictedWinner() != null && bet.getPredictedWinner().getName().equals(winningTeam))
                         || (bet.isDraw() && winningTeam.equals("draw")))
                 {
                     persist.updateStatus(bet, true);
