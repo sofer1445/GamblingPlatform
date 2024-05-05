@@ -81,6 +81,7 @@
         <property name="predictedResult" type="string" column="bet"/>
         <property name="draw" type="boolean" column="draw"/>
         <property name="status" type="boolean" column="status"/>
+        <property name="betAmount" type="int" column="coins"/>
 
     </class>
 

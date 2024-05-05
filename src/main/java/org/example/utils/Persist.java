@@ -170,6 +170,30 @@ public class Persist {
         return false;
     }
 
+    public int calculateWinningAmount(String secretUser ,Double ratio, int amount) {
+        try {
+            Session session = sessionFactory.getCurrentSession();
+            User user = session.createQuery("FROM User WHERE secret = :secretUser", User.class)
+                    .setParameter("secretUser", secretUser)
+                    .uniqueResult();
+            if (user == null) {
+                return 0;
+            }
+            int coins = user.getCoins();
+            if (coins < amount) {
+                return 0;
+            }
+            int winningAmount = (int) (amount * ratio);
+            user.setCoins(coins + winningAmount);
+            session.update(user);
+            return winningAmount;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return amount;
+    }
+
     public void createClub(FootballClub club) {
         try {
             Session session = sessionFactory.getCurrentSession();
@@ -303,31 +327,6 @@ public class Persist {
         }
     }
 
-    public void updateMatch(Match match) {
-        try {
-            Session session = sessionFactory.getCurrentSession();
-            session.update(match);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public List<Match> getMatchesBySecret(String secret) {
-        try {
-            Session session = sessionFactory.getCurrentSession();
-            return session.createQuery("FROM Match WHERE secretUser = :secret",
-                            Match.class)
-                    .setParameter("secret", secret)
-                    .getResultList();
-        } catch (Exception e) {
-            e.printStackTrace();
-
-        }
-        return null;
-    }
-
-
-
     public void createGameProgression(GameProgression gameProgression) {
         try {
             Session session = sessionFactory.getCurrentSession();
@@ -419,18 +418,6 @@ public class Persist {
             e.printStackTrace();
         }
         return null;
-    }
-
-    public int lastIdBet(String secretUser) {
-        try {
-            Session session = sessionFactory.getCurrentSession();
-            return session.createQuery("SELECT MAX(idBet) FROM Bet WHERE secretUser = :secretUser", Integer.class)
-                    .setParameter("secretUser", secretUser)
-                    .uniqueResult();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return 0;
     }
 
     public Match getMatchById(int idMatch) {
