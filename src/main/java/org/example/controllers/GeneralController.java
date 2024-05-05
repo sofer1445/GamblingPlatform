@@ -357,7 +357,7 @@ public class GeneralController {
         User user = persist.getUserBySecret(secretNewUser);
         FootballClub team;
         if (user.getSecret().equals(secretNewUser)) {
-            if (betOnWin.equals("draw")) {
+            if (betOnWin.equals("Draw")) {
                 boolean draw = true;
                 Bet bet = new Bet(user.getSecret(), draw);
                 this.persist.createBet(bet);
@@ -393,31 +393,56 @@ public class GeneralController {
 
     }
 
+//    @RequestMapping(value = "check-bet")
+//    public boolean checkBet(String secretNewUser, String homeTeam, String awayTeam) {
+//        if (secretNewUser != null && !secretNewUser.isEmpty()) {
+//            Bet bet = persist.getBetByTeams(secretNewUser, homeTeam, awayTeam);
+//            if (bet != null) {
+//                FootballClub homeTeamClub = persist.getClubByName(homeTeam);
+//                FootballClub awayTeamClub = persist.getClubByName(awayTeam);
+//                Match match = persist.getMatchByTeams(homeTeamClub, awayTeamClub, bet.getSecretUser());
+//                GameProgression gameProgression = new GameProgression();
+//                gameProgression.setResult(Map.of(match.getResult(), match.getHomeTeam().getName()));
+//                gameProgression.setTeam1InitialStrength(match.getHomeTeam().getName()); // homeTeam name
+//                gameProgression.setTeam2InitialStrength(match.getAwayTeam().getName()); // awayTeam name
+//                String winningTeam = gameProgression.getWinningTeamName();
+//                if (Objects.equals(winningTeam, "Draw") && bet.isDraw()) {
+//                    persist.updateStatus(bet, true);
+//                    return true;
+//                }
+//                if (match.getResult().equals(bet.getPredictedResult())
+//                        || (bet.getPredictedWinner() != null && bet.getPredictedWinner().getName().equals(winningTeam))) {
+//                    persist.updateStatus(bet, true);
+//                    return true;
+//                }
+//            }
+//        }
+//        return false;
+//    }
+
     @RequestMapping(value = "check-bet")
-    public boolean checkBet(String secretNewUser, int idBet, String homeTeam, String awayTeam) {
+    public boolean checkBet(String secretNewUser, String homeTeam, String awayTeam, int idBet) {
         if (secretNewUser != null && !secretNewUser.isEmpty()) {
-            User user = persist.getUserBySecret(secretNewUser);
             Bet bet = persist.getBetById(idBet);
-            FootballClub homeTeamClub = persist.getClubByName(homeTeam);
-            FootballClub awayTeamClub = persist.getClubByName(awayTeam);
-            Match match = persist.getMatchByTeams(homeTeamClub, awayTeamClub, bet.getSecretUser());
-            GameProgression gameProgression = new GameProgression();
-            gameProgression.setResult(Map.of(match.getResult(), match.getHomeTeam().getName()));
-            gameProgression.setTeam1InitialStrength(match.getHomeTeam().getName()); // homeTeam name
-            gameProgression.setTeam2InitialStrength(match.getAwayTeam().getName()); // awayTeam name
-            String winningTeam = gameProgression.getWinningTeamName();
-            if (user != null && bet != null && user.getSecret().equals(bet.getSecretUser())) {
-                if (Objects.equals(winningTeam, "Draw") && bet.isDraw()) {
-                    persist.updateStatus(bet, true);
-                    return true;
+            if (bet != null) {
+                FootballClub homeTeamClub = persist.getClubByName(homeTeam);
+                FootballClub awayTeamClub = persist.getClubByName(awayTeam);
+                Match match = persist.getMatchByTeams(homeTeamClub, awayTeamClub, bet.getSecretUser());
+                if (match != null) {
+                    bet.setMatch(match);
+                    persist.updateBet(bet);
+                    if (bet.getMatch().getResult().equals(bet.getPredictedResult())) {
+                        bet.setStatus(true);
+                        persist.updateStatus(bet, true);
+                        return true;
+                    }
+                    if (bet.getPredictedWinner() != null && bet.getPredictedWinner().getName().equals(match.getWinningTeamName())) {
+                        bet.setStatus(true);
+                        persist.updateStatus(bet, true);
+                        return true;
+                    }
                 }
-                if (match.getResult().equals(bet.getPredictedResult())
-                        || (bet.getPredictedWinner() != null && bet.getPredictedWinner().getName().equals(winningTeam))
-                        || (bet.isDraw() && winningTeam.equals("draw")))
-                {
-                    persist.updateStatus(bet, true);
-                    return true;
-                }
+
             }
         }
         return false;
@@ -454,6 +479,8 @@ public class GeneralController {
         Map<String, Double> ratios = bettingSystem.ratioCalculation(match);
         return ratios;
     }
+
+
 }
 
 

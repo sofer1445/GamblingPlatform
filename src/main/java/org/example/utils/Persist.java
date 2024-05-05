@@ -421,6 +421,18 @@ public class Persist {
         return null;
     }
 
+    public int lastIdBet(String secretUser) {
+        try {
+            Session session = sessionFactory.getCurrentSession();
+            return session.createQuery("SELECT MAX(idBet) FROM Bet WHERE secretUser = :secretUser", Integer.class)
+                    .setParameter("secretUser", secretUser)
+                    .uniqueResult();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
     public Match getMatchById(int idMatch) {
         try {
             Session session = sessionFactory.getCurrentSession();
@@ -538,6 +550,15 @@ public class Persist {
             e.printStackTrace();
         }
         return false;
+    }
+
+    public void updateBet(Bet bet) {
+        try {
+            Session session = sessionFactory.getCurrentSession();
+            session.update(bet);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 

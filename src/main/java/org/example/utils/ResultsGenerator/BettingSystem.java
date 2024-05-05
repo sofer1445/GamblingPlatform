@@ -106,11 +106,17 @@ public class BettingSystem {
         return (double) totalPoints / matchCount;
     }
 
-    private double calculateOdds(double probability) {
+    private double calculateOdds(double probability) // Calculate the odds based on the probability
+    {
         // Ensure the odds are not less than 1.05
         if (probability <= 0) {
             return 1.05;
-        } else {
+        }
+        // Ensure the odds are not greater than 1
+        else if (probability >= 1) {
+            return 1.05;
+        }
+        else {
             double odds = 1 / probability;
             return Math.max(odds, 1.05);
         }

@@ -70,4 +70,17 @@ public class Match {
         this.secretUser = secretUser;
     }
 
+    public String getWinningTeamName() {
+        String[] scores = result.split("-");
+        int homeScore = Integer.parseInt(scores[0]);
+        int awayScore = Integer.parseInt(scores[1]);
+
+        if (homeScore > awayScore) {
+            return homeTeam.getName();
+        } else if (awayScore > homeScore) {
+            return awayTeam.getName();
+        } else {
+            return "Draw";
+        }
+    }
 }
