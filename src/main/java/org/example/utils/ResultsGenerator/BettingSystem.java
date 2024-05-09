@@ -21,104 +21,76 @@ public class BettingSystem {
     public Map<String, Double> ratioCalculation(Match match) {
         Map<String, Double> ratios = new HashMap<>();
 
-        double homeTeamStrength = calculateTeamStrength(match.getHomeTeam());
-        double awayTeamStrength = calculateTeamStrength(match.getAwayTeam());
+        List<Match> allMatches = persist.getMatches();
 
-        double homeWinProbability = homeTeamStrength / (homeTeamStrength + awayTeamStrength);
-        double awayWinProbability = awayTeamStrength / (homeTeamStrength + awayTeamStrength);
-        double drawProbability = 1 - Math.max(homeWinProbability, awayWinProbability);
+        double homeTeamGoalAverage = calculateTeamGoalAverage(match.getHomeTeam(), allMatches);
+        double awayTeamGoalAverage = calculateTeamGoalAverage(match.getAwayTeam(), allMatches);
 
-        double homeTeamAveragePoints = calculateAveragePoints(match.getHomeTeam());
-        double awayTeamAveragePoints = calculateAveragePoints(match.getAwayTeam());
+        if (homeTeamGoalAverage == 0 && awayTeamGoalAverage == 0) {
+            ratios.put("1", roundToTwoDecimalPlaces(1.05 + (match.getHomeTeam().getTeamStrength() / 100.0) * 2.95));
+            ratios.put("X", roundToTwoDecimalPlaces(1.05 + Math.random() * 2.95));
+            ratios.put("2", roundToTwoDecimalPlaces(1.05 + (match.getAwayTeam().getTeamStrength() / 100.0) * 2.95));
+            return ratios;
+        }
 
-        double homeRatio = roundToTwoDecimalPlaces(calculateOdds(homeWinProbability) * homeTeamAveragePoints);
-        double drawRatio = roundToTwoDecimalPlaces(calculateOdds(drawProbability));
-        double awayRatio = roundToTwoDecimalPlaces(calculateOdds(awayWinProbability) * awayTeamAveragePoints);
+        double homeWinProbability = homeTeamGoalAverage / (homeTeamGoalAverage + awayTeamGoalAverage);
+        double awayWinProbability = awayTeamGoalAverage / (homeTeamGoalAverage + awayTeamGoalAverage);
+        double drawProbability = 1 - Math.abs(homeWinProbability - awayWinProbability);
 
-        // Check if ratios are 0 and if so, assign a random value between 1 and 4
-        homeRatio = homeRatio == 0 ? roundToTwoDecimalPlaces(Math.random() * 3 + 1) : homeRatio;
-        drawRatio = drawRatio == 0 ? roundToTwoDecimalPlaces(Math.random() * 3 + 1) : drawRatio;
-        awayRatio = awayRatio == 0 ? roundToTwoDecimalPlaces(Math.random() * 3 + 1) : awayRatio;
+        double homeRatio = calculateOdds(homeWinProbability) * calculateTeamStrength(match.getHomeTeam());
+        double drawRatio = calculateOdds(drawProbability) * calculateTeamStrength(null);
+        double awayRatio = calculateOdds(awayWinProbability) * calculateTeamStrength(match.getAwayTeam());
 
-        ratios.put("1", homeRatio);
-        ratios.put("X", drawRatio);
-        ratios.put("2", awayRatio);
+        ratios.put("1", roundToTwoDecimalPlaces(homeRatio));
+        ratios.put("X", roundToTwoDecimalPlaces(drawRatio));
+        ratios.put("2", roundToTwoDecimalPlaces(awayRatio));
 
         return ratios;
     }
 
-    private double roundToTwoDecimalPlaces(double value) {
-        return Math.round(value * 100.0) / 100.0;
-    }
-
-    private double calculateTeamStrength(FootballClub team) {
-        List<Match> matches = persist.getMatches();
-        int totalGoals = 0;
+    private double calculateTeamGoalAverage(FootballClub team, List<Match> allMatches) {
+        double totalGoals = 0;
         int matchCount = 0;
 
-        for (Match match : matches) {
-            if (match.getHomeTeam().getName().equals(team.getName()) || match.getAwayTeam().getName().equals(team.getName())) {
+        for (Match match : allMatches) {
+            if (match.getHomeTeam().equals(team) || match.getAwayTeam().equals(team)) {
                 String[] scores = match.getResult().split("-");
                 int homeScore = Integer.parseInt(scores[0]);
                 int awayScore = Integer.parseInt(scores[1]);
 
-                if (match.getHomeTeam().getName().equals(team.getName())) {
+                if (match.getHomeTeam().equals(team)) {
                     totalGoals += homeScore;
-                } else if (match.getAwayTeam().getName().equals(team.getName())) {
+                } else {
                     totalGoals += awayScore;
                 }
                 matchCount++;
             }
         }
 
-        double teamStrength = matchCount > 0 ? (double) totalGoals / matchCount : 0.5; // Default value if no matches have been played
-        return teamStrength;
+        return matchCount > 0 ? totalGoals / matchCount : 0; // Return 0 if no matches have been played
     }
 
-    private double calculateAveragePoints(FootballClub team) {
-        List<Match> matches = persist.getMatches();
-        int totalPoints = 0;
-        int matchCount = 0;
-
-        for (Match match : matches) {
-            if (match.getHomeTeam().getName().equals(team.getName()) || match.getAwayTeam().getName().equals(team.getName())) {
-                String[] scores = match.getResult().split("-");
-                int homeScore = Integer.parseInt(scores[0]);
-                int awayScore = Integer.parseInt(scores[1]);
-
-                if (match.getHomeTeam().getName().equals(team.getName())) {
-                    if (homeScore > awayScore) {
-                        totalPoints += 3;
-                    } else if (homeScore == awayScore) {
-                        totalPoints += 1;
-                    }
-                } else if (match.getAwayTeam().getName().equals(team.getName())) {
-                    if (awayScore > homeScore) {
-                        totalPoints += 3;
-                    } else if (homeScore == awayScore) {
-                        totalPoints += 1;
-                    }
-                }
-                matchCount++;
-            }
-        }
-
-        return (double) totalPoints / matchCount;
-    }
-
-    private double calculateOdds(double probability) // Calculate the odds based on the probability
-    {
-        // Ensure the odds are not less than 1.05
+    private double calculateOdds(double probability) {
         if (probability <= 0) {
-            return 1.05;
-        }
-        // Ensure the odds are not greater than 1
-        else if (probability >= 1) {
-            return 1.05;
-        }
-        else {
+            return roundToTwoDecimalPlaces(3.0);
+        } else if (probability == 1) {
+            return roundToTwoDecimalPlaces(3.0);
+        } else {
             double odds = 1 / probability;
-            return Math.max(odds, 1.05);
+            return roundToTwoDecimalPlaces(Math.min(Math.max(odds, 1.05), 4.0));
         }
     }
+
+    private double calculateTeamStrength(FootballClub team) {
+        if (team != null) {
+            return roundToTwoDecimalPlaces(Math.max(team.getTeamStrength() / 25.0, 1.05));
+        } else {
+            return roundToTwoDecimalPlaces(1.05); // Default strength for a draw
+        }
+    }
+
+    private double roundToTwoDecimalPlaces(double value) {
+        return Math.round(value * 100.0) / 100.0;
+    }
+
 }
