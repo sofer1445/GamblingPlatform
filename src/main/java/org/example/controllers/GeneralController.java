@@ -413,9 +413,12 @@ public class GeneralController {
                         persist.updateStatus(bet, true);
                         return true;
                     }
-                    if (bet.getPredictedWinner() != null && (bet.getPredictedWinner().getName().equals(match.getWinningTeamName()))
-                    || (bet.isDraw() && match.getWinningTeamName().equals("Draw"))
-                    ) {
+                    if(bet.getPredictedWinner() != null && (bet.getPredictedWinner().getName().equals(match.getWinningTeamName()))){
+                        bet.setStatus(true);
+                        persist.updateStatus(bet, true);
+                        return true;
+                    }
+                    if (bet.isDraw() && match.getWinningTeamName().equals("Draw")) {
                         bet.setStatus(true);
                         persist.updateStatus(bet, true);
                         return true;
