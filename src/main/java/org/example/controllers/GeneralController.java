@@ -131,6 +131,17 @@ public class GeneralController {
         return success;
     }
 
+    @RequestMapping(value = "logout")
+    public boolean logout(String secretNewUser) {
+        if (secretNewUser != null && !secretNewUser.isEmpty()) {
+            User user = persist.getUserBySecret(secretNewUser);
+            if (user != null) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     @RequestMapping(value = "delete-user")
     public boolean deleteUser(String secretNewUser) {
         if (secretNewUser != null && !secretNewUser.isEmpty()) {
@@ -349,26 +360,28 @@ public class GeneralController {
     }
 
     @RequestMapping(value = "add-bet-win")
-    public boolean addBetWin(String secretNewUser, String betOnWin, String betAmount) {
+    public boolean addBetWin(String secretNewUser, String betOnWin, String betAmount, int roundNumber) {
         if (secretNewUser == null || secretNewUser.isEmpty() || betOnWin == null || betOnWin.isEmpty()) {
             return false;
         }
-//        Match newMatch = persist.getMatchById(idMatch);
+
         User user = persist.getUserBySecret(secretNewUser);
-        FootballClub team;
-        if (user.getSecret().equals(secretNewUser)) {
+        if (user != null) {
+            int parsedBetAmount = (int) Math.round(Double.parseDouble(betAmount));
+            this.persist.currencyUpdate(user, -parsedBetAmount);
             if (betOnWin.equals("Draw")) {
                 boolean draw = true;
                 Bet bet = new Bet(user.getSecret(), draw);
-                this.persist.currencyUpdate(user,  (int)(-Math.round(Double.parseDouble(betAmount))));
+                bet.setBetAmount(parsedBetAmount);
+                this.persist.updateRoundNumber(secretNewUser, roundNumber, bet);
                 this.persist.createBet(bet);
-                return true;
+            } else {
+                FootballClub team = persist.getClubByName(betOnWin);
+                Bet bet = new Bet(user.getSecret(), team);
+                bet.setBetAmount(parsedBetAmount);
+                this.persist.updateRoundNumber(secretNewUser, roundNumber, bet);
+                this.persist.createBet(bet);
             }
-            team = persist.getClubByName(betOnWin);
-            Bet bet = new Bet(user.getSecret(), team);
-            this.persist.currencyUpdate(user,  (int)(-Math.round(Double.parseDouble(betAmount))));
-            bet.setBetAmount((int) Math.round(Double.parseDouble(betAmount)));
-            this.persist.createBet(bet);
             return true;
         }
 
@@ -423,6 +436,7 @@ public class GeneralController {
                         persist.updateStatus(bet, true);
                         return true;
                     }
+
                 }
 
             }
@@ -431,10 +445,10 @@ public class GeneralController {
     }
 
     @RequestMapping(value = "calculate-winning-amount")
-    public int calculateWinningAmount(String secretUser ,Double ratio, int amount) {
+    public int calculateWinningAmount(String secretUser ,Double ratio, int amount , int betCount) {
         User user = persist.getUserBySecret(secretUser);
         if (user != null) {
-            return this.persist.calculateWinningAmount(secretUser, ratio, amount);
+            return this.persist.calculateWinningAmount(secretUser, ratio, amount, betCount);
         }
         return 0;
 

@@ -10,6 +10,7 @@ public class Bet {
     private boolean draw;
     private boolean status;
     private int betAmount; // סכום ההימור
+    private int roundNumber;
 
     public Bet(String secretUser, Match match, String predictedResult) {
         this.secretUser = secretUser;
@@ -107,5 +108,13 @@ public class Bet {
 
     public void setDraw(boolean draw) {
         this.draw = draw;
+    }
+
+    public int getRoundNumber() {
+        return roundNumber;
+    }
+
+    public void setRoundNumber(int roundNumber) {
+        this.roundNumber = roundNumber;
     }
 }
