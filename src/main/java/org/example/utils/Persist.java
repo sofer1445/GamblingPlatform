@@ -197,13 +197,10 @@ public class Persist {
                     if (user == null) {
                         return 0;
                     }
-                    int coins = user.getCoins();
-                    if (coins < amount) {
-                        return 0;
-                    }
-                    for (int i = 0; i < betCount; i++) {
-                        amount *= ratio;
-                    }
+                    double averageRatio = ratio / betCount;
+                    user.setCoins(user.getCoins() + (int) (amount * averageRatio) * betCount);
+                    session.update(user);
+                    return (int) (amount * averageRatio) * betCount;
 
                 } catch (Exception e) {
                     e.printStackTrace();
